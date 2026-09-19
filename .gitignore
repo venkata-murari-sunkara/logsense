@@ -1,0 +1,6 @@
+venv/
+HDFS_v1/
+HDFS_2k.log
+__pycache__/
+.env
+.DS_Store
