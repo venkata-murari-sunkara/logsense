@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>LogSense — Analyze</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css?v=1790629723" />
+</head>
+<body>
+  <div class="ls-shell">
+    <aside class="ls-sidebar">
+      <div class="ls-brand">LogSense</div>
+      <nav class="ls-nav">
+        <div class="ls-nav-header">Monitor</div>
+        <a href="index.html">Dashboard</a>
+        <a href="priorities.html">Priorities <span class="ls-badge" id="nav-priorities-badge" hidden></span></a>
+        <div class="ls-nav-header">Investigate</div>
+        <a href="analyze.html" class="active">Analyze</a>
+        <a href="history.html">History</a>
+        <a href="chat.html">Chat</a>
+        <div class="ls-nav-header">Model</div>
+        <a href="evaluate.html">Evaluation</a>
+        <a href="reports.html">Reports</a>
+      </nav>
+      <div class="ls-sidebar-info">
+        <strong>Dataset · HDFS</strong>
+        <div class="ls-mono">575,061 blocks indexed</div>
+        <div class="ls-dot-row"><span class="ls-dot"></span>Retriever online</div>
+      </div>
+    </aside>
+
+    <main class="ls-main">
+      <div class="ls-header">
+        <h1>Analyze a block</h1>
+        <p>Search the full block catalog, pick one, and run the detection + retrieval + explanation pipeline.</p>
+      </div>
+
+      <div id="analysis-panel"></div>
+
+      <div class="ls-section-title">Browse blocks</div>
+      <div class="ls-card">
+        <div class="ls-row">
+          <input type="text" id="search-input" placeholder="Search block ID…" />
+          <select id="label-filter">
+            <option value="">All ground-truth labels</option>
+            <option value="Anomaly">Anomaly</option>
+            <option value="Normal">Normal</option>
+          </select>
+          <select id="predicted-filter">
+            <option value="">All model verdicts</option>
+            <option value="Anomaly">Flagged: Anomaly</option>
+            <option value="Normal">Flagged: Normal</option>
+          </select>
+          <button class="ls-btn" id="search-btn">Search</button>
+        </div>
+      </div>
+
+      <div id="block-list"></div>
+      <div class="ls-pagination" id="pagination"></div>
+    </main>
+  </div>
+
+  <script src="js/api.js?v=1790629723"></script>
+  <script src="js/analyze.js?v=1790629723"></script>
+</body>
+</html>

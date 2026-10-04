@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>LogSense — Evaluation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css?v=1790629723" />
+</head>
+<body>
+  <div class="ls-shell">
+    <aside class="ls-sidebar">
+      <div class="ls-brand">LogSense</div>
+      <nav class="ls-nav">
+        <div class="ls-nav-header">Monitor</div>
+        <a href="index.html">Dashboard</a>
+        <a href="priorities.html">Priorities <span class="ls-badge" id="nav-priorities-badge" hidden></span></a>
+        <div class="ls-nav-header">Investigate</div>
+        <a href="analyze.html">Analyze</a>
+        <a href="history.html">History</a>
+        <a href="chat.html">Chat</a>
+        <div class="ls-nav-header">Model</div>
+        <a href="evaluate.html" class="active">Evaluation</a>
+        <a href="reports.html">Reports</a>
+      </nav>
+      <div class="ls-sidebar-info">
+        <strong>Dataset · HDFS</strong>
+        <div class="ls-mono">575,061 blocks indexed</div>
+        <div class="ls-dot-row"><span class="ls-dot"></span>Retriever online</div>
+      </div>
+    </aside>
+
+    <main class="ls-main">
+      <div class="ls-header">
+        <h1>Accuracy evaluation</h1>
+        <p>Runs grounded (RAG) vs. ungrounded explanations over a fresh random sample and checks each verdict against ground truth.</p>
+      </div>
+
+      <div class="ls-card">
+        <div class="ls-row">
+          <label class="ls-muted" for="sample-size">Sample size (split evenly across anomaly / normal):</label>
+          <input type="number" id="sample-size" value="100" min="2" max="500" step="2" />
+          <button class="ls-btn" id="run-btn">Run evaluation</button>
+        </div>
+        <p id="sample-size-warning" class="ls-muted" style="color: var(--danger-text);" hidden></p>
+        <p class="ls-muted" id="run-status"></p>
+      </div>
+
+      <div class="ls-section-title">Run history</div>
+      <div id="run-list"></div>
+
+      <div id="run-detail"></div>
+    </main>
+  </div>
+
+  <script src="js/api.js?v=1790629723"></script>
+  <script src="js/evaluate.js?v=1790629723"></script>
+</body>
+</html>

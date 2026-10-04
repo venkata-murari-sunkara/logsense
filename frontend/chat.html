@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>LogSense — Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css?v=1790629723" />
+</head>
+<body>
+  <div class="ls-shell">
+    <aside class="ls-sidebar">
+      <div class="ls-brand">LogSense</div>
+      <nav class="ls-nav">
+        <div class="ls-nav-header">Monitor</div>
+        <a href="index.html">Dashboard</a>
+        <a href="priorities.html">Priorities <span class="ls-badge" id="nav-priorities-badge" hidden></span></a>
+        <div class="ls-nav-header">Investigate</div>
+        <a href="analyze.html">Analyze</a>
+        <a href="history.html">History</a>
+        <a href="chat.html" class="active">Chat</a>
+        <div class="ls-nav-header">Model</div>
+        <a href="evaluate.html">Evaluation</a>
+        <a href="reports.html">Reports</a>
+      </nav>
+      <div class="ls-sidebar-info">
+        <strong>Dataset · HDFS</strong>
+        <div class="ls-mono">575,061 blocks indexed</div>
+        <div class="ls-dot-row"><span class="ls-dot"></span>Retriever online</div>
+      </div>
+    </aside>
+
+    <main class="ls-main">
+      <div class="ls-header">
+        <h1>Ask LogSense</h1>
+        <p>Ask about current stats, recent activity, or a specific block — answers are grounded in the system's real, current data, not guesses.</p>
+      </div>
+
+      <div class="ls-card" style="padding: 0; overflow: hidden;">
+        <div id="chat-messages" style="max-height: 55vh; overflow-y: auto; padding: 1.25rem;"></div>
+        <div style="border-top: 1px solid var(--border); padding: 0.9rem 1.25rem; display: flex; gap: 0.6rem;">
+          <input type="text" id="chat-input" placeholder="e.g. Which blocks look risky right now?" style="flex: 1;" />
+          <button class="ls-btn" id="chat-send-btn">Send</button>
+          <button class="ls-btn ls-btn-ghost" id="chat-clear-btn">Clear</button>
+        </div>
+      </div>
+
+      <p class="ls-muted" style="margin-top: 0.75rem;">Try: "How accurate is the AI?" · "What's the top priority case right now?" · "Tell me about block blk_-1234567890"</p>
+    </main>
+  </div>
+
+  <script src="js/api.js?v=1790629723"></script>
+  <script src="js/chat.js?v=1790629723"></script>
+</body>
+</html>

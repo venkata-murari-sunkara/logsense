@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>LogSense — Reports</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css?v=1790629723" />
+</head>
+<body>
+  <div class="ls-shell">
+    <aside class="ls-sidebar">
+      <div class="ls-brand">LogSense</div>
+      <nav class="ls-nav">
+        <div class="ls-nav-header">Monitor</div>
+        <a href="index.html">Dashboard</a>
+        <a href="priorities.html">Priorities <span class="ls-badge" id="nav-priorities-badge" hidden></span></a>
+        <div class="ls-nav-header">Investigate</div>
+        <a href="analyze.html">Analyze</a>
+        <a href="history.html">History</a>
+        <a href="chat.html">Chat</a>
+        <div class="ls-nav-header">Model</div>
+        <a href="evaluate.html">Evaluation</a>
+        <a href="reports.html" class="active">Reports</a>
+      </nav>
+      <div class="ls-sidebar-info">
+        <strong>Dataset · HDFS</strong>
+        <div class="ls-mono">575,061 blocks indexed</div>
+        <div class="ls-dot-row"><span class="ls-dot"></span>Retriever online</div>
+      </div>
+    </aside>
+
+    <main class="ls-main">
+      <div class="ls-header">
+        <h1>Reports</h1>
+        <p>Trends over time, and what tends to show up in real problems</p>
+      </div>
+
+      <div class="ls-date-range" id="date-range">
+        <button class="ls-btn ls-btn-ghost" data-days="7">Last 7 days</button>
+        <button class="ls-btn ls-btn-ghost active" data-days="30">Last 30 days</button>
+        <button class="ls-btn ls-btn-ghost" data-days="90">Last 90 days</button>
+      </div>
+
+      <div class="ls-chart-card">
+        <div class="ls-chart-title">How accurate is the AI, over time?</div>
+        <div class="ls-chart-subtitle">Each point is one accuracy test — hover a point for details. <span class="ls-muted">(grounded vs ungrounded evaluation runs)</span></div>
+        <div id="accuracy-chart"><div class="ls-empty">Loading…</div></div>
+      </div>
+
+      <div class="ls-chart-card">
+        <div class="ls-chart-title">Blocks checked per day</div>
+        <div class="ls-chart-subtitle">How many cases the AI analyzed each day, and what it found</div>
+        <div id="activity-chart"><div class="ls-empty">Loading…</div></div>
+      </div>
+
+      <div class="ls-chart-card">
+        <div class="ls-chart-title">What real problems usually look like</div>
+        <div class="ls-chart-subtitle">Event types that show up far more often in confirmed anomalies than in normal blocks — hover a bar for the comparison. <span class="ls-muted">(share of anomaly blocks containing this event)</span></div>
+        <div id="patterns-chart"><div class="ls-empty">Loading…</div></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js?v=1790629723"></script>
+  <script src="js/charts.js?v=1790629723"></script>
+  <script src="js/reports.js?v=1790629723"></script>
+</body>
+</html>
