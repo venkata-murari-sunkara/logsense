@@ -74,6 +74,12 @@ def _process_block(block_data: dict) -> dict:
         evidence = get_similar_incidents(
             db, block_data["event_counts"], top_k=3, exclude_block_id=bid
         )
+        # Read-only so far — end the transaction before the Groq calls
+        # below (two per block here, each throttled, more under retries;
+        # worse than the single-call paths since 8 of these run concurrently
+        # against one shared throttle). Otherwise this connection sits
+        # idle-in-transaction long enough for Neon to kill it mid-run.
+        db.commit()
         grounded_text = explanation.generate_explanation(block_data["event_counts"], evidence)
         ungrounded_text = explanation.generate_explanation_ungrounded(block_data["event_counts"])
         grounded_verdict = classify_verdict(grounded_text)
@@ -113,6 +119,10 @@ def run_evaluation(run_id: int, sample_size: int) -> None:
             {"block_id": b.block_id, "event_counts": b.event_counts, "true_label": b.true_label}
             for b in blocks
         ]
+        # These were read-only — end the transaction before the thread pool
+        # starts, so this session doesn't sit idle-in-transaction for the
+        # run's whole duration while waiting on worker results.
+        db.commit()
 
         grounded_correct_count = 0
         ungrounded_correct_count = 0

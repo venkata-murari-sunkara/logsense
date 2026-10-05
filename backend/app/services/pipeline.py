@@ -17,6 +17,12 @@ def analyze_block(
     evidence = get_similar_incidents(
         db, block.event_counts, top_k=top_k, exclude_block_id=block.block_id
     )
+    # Nothing's been written yet — end the read transaction here so the
+    # connection isn't held idle-in-transaction through the Groq calls
+    # below (each throttled to a 3s+ minimum gap, more under retries).
+    # Neon kills connections that sit idle-in-transaction too long; this
+    # is what took down a concurrent evaluation run partway through.
+    db.commit()
 
     grounded_text = explanation.generate_explanation(block.event_counts, evidence)
     ungrounded_text = (
