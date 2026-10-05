@@ -23,6 +23,16 @@ logger = logging.getLogger("logsense.explanation")
 
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
+# Both SDKs default to a long read timeout (Groq: 60s, the openai client
+# used for Gemini: 600s/10min) — meant for big batch/streaming jobs, not
+# a few-sentence completion that normally finishes in seconds here. A
+# connection that genuinely hangs (no response, no error) sits silently
+# below our retry logic until that default fires, which is what stalled
+# an evaluation run for ~35 minutes with zero error logs. Fail fast
+# instead so a hang actually triggers our retry/backoff instead of
+# stalling invisibly.
+REQUEST_TIMEOUT_SECONDS = 30.0
+
 _client_lock = threading.Lock()
 _client: Groq | None = None
 
@@ -36,7 +46,7 @@ def get_client() -> Groq:
         with _client_lock:
             if _client is None:
                 settings = get_settings()
-                _client = Groq(api_key=settings.groq_api_key)
+                _client = Groq(api_key=settings.groq_api_key, timeout=REQUEST_TIMEOUT_SECONDS)
     return _client
 
 
@@ -47,7 +57,9 @@ def get_gemini_client() -> OpenAI:
             if _gemini_client is None:
                 settings = get_settings()
                 _gemini_client = OpenAI(
-                    api_key=settings.gemini_api_key, base_url=GEMINI_BASE_URL
+                    api_key=settings.gemini_api_key,
+                    base_url=GEMINI_BASE_URL,
+                    timeout=REQUEST_TIMEOUT_SECONDS,
                 )
     return _gemini_client
 
