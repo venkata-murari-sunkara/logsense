@@ -1,6 +1,7 @@
 import datetime
 import logging
 import random
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from sqlalchemy import func, select
@@ -21,6 +22,11 @@ NORMAL_WORDS = [
     "normal", "routine", "expected", "no issue", "no problem",
     "successful", "healthy", "nothing wrong", "not a problem",
 ]
+NEGATION_CUES = (
+    "no", "not", "without", "lacks", "lacking", "lack of", "free of",
+    "absence of", "none of", "isn't", "doesn't", "did not", "does not",
+)
+_NEGATION_WINDOW_CHARS = 25
 
 # Max blocks in flight at once. Concurrency here buys parallel pgvector
 # retrieval and per-block error isolation; it does NOT buy more Groq
@@ -30,11 +36,43 @@ NORMAL_WORDS = [
 BATCH_SIZE = 8
 
 
+_LABEL_REFERENCE_RE = re.compile(r'[\[“"](anomaly|normal)[\]”"]', re.IGNORECASE)
+
+
+def _strip_label_references(text: str) -> str:
+    """Evidence is quoted back verbatim as e.g. "[Anomaly]" or "Anomaly"
+    (straight or curly quotes, or brackets) — that's the retrieved case's
+    label, not a claim about the block being analyzed. Strip these before
+    counting keywords, or "...unlike the "Anomaly" incidents..." counts
+    as an anomaly hit for a block the explanation is actually calling
+    normal."""
+    return _LABEL_REFERENCE_RE.sub(" ", text)
+
+
+def _count_hits(text: str, words: list[str]) -> int:
+    """Presence check per word (matches original semantics — repeats of the
+    same word don't add extra hits), but skips a hit if the word is
+    immediately preceded by a negation ("no error", "lacks unusual
+    activity") — otherwise an explanation that correctly concludes
+    "normal" by explaining the *absence* of anomaly indicators gets
+    miscounted as "Anomaly"."""
+    hits = 0
+    for word in words:
+        idx = text.find(word)
+        if idx == -1:
+            continue
+        window = text[max(0, idx - _NEGATION_WINDOW_CHARS) : idx]
+        if any(neg in window for neg in NEGATION_CUES):
+            continue
+        hits += 1
+    return hits
+
+
 def classify_verdict(explanation_text: str) -> str:
     """Simple keyword check: does the explanation conclude 'Anomaly' or 'Normal'?"""
-    text = explanation_text.lower()
-    anomaly_hits = sum(1 for w in ANOMALY_WORDS if w in text)
-    normal_hits = sum(1 for w in NORMAL_WORDS if w in text)
+    text = _strip_label_references(explanation_text.lower())
+    anomaly_hits = _count_hits(text, ANOMALY_WORDS)
+    normal_hits = _count_hits(text, NORMAL_WORDS)
     return "Anomaly" if anomaly_hits > normal_hits else "Normal"
 
 
