@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     groq_api_key: str
     embedding_model_name: str = "all-MiniLM-L6-v2"
     groq_model_name: str = "openai/gpt-oss-120b"
+    gemini_api_key: str | None = None
+    gemini_model_name: str = "gemini-3.1-flash-lite"
+    llm_provider: str = "groq"
 
 
 @lru_cache

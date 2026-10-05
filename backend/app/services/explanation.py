@@ -3,6 +3,11 @@ import threading
 import time
 
 from groq import APIConnectionError, APITimeoutError, Groq, InternalServerError, RateLimitError
+from openai import OpenAI
+from openai import APIConnectionError as GeminiAPIConnectionError
+from openai import APITimeoutError as GeminiAPITimeoutError
+from openai import InternalServerError as GeminiInternalServerError
+from openai import RateLimitError as GeminiRateLimitError
 from tenacity import (
     before_sleep_log,
     retry,
@@ -16,8 +21,13 @@ from app.services.event_descriptions import describe_block
 
 logger = logging.getLogger("logsense.explanation")
 
+GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
+
 _client_lock = threading.Lock()
 _client: Groq | None = None
+
+_gemini_client_lock = threading.Lock()
+_gemini_client: OpenAI | None = None
 
 
 def get_client() -> Groq:
@@ -30,11 +40,25 @@ def get_client() -> Groq:
     return _client
 
 
+def get_gemini_client() -> OpenAI:
+    global _gemini_client
+    if _gemini_client is None:
+        with _gemini_client_lock:
+            if _gemini_client is None:
+                settings = get_settings()
+                _gemini_client = OpenAI(
+                    api_key=settings.gemini_api_key, base_url=GEMINI_BASE_URL
+                )
+    return _gemini_client
+
+
 # Groq's free tier caps out around 8000 tokens/minute (and a separate
 # 200,000 tokens/day cap). Callers (e.g. the evaluation service) may fire
 # requests from several worker threads at once, so this throttle is global
 # and thread-safe: it enforces a minimum gap between call *starts* across
-# every thread. The lock is released before the network call itself, so
+# every thread — shared across both providers below, since it's really
+# about not hammering whichever LLM is currently in use. The lock is
+# released before the network call itself, so
 # multiple calls can be in flight at once once their spacing has been
 # satisfied — that's fine, Groq's client handles concurrent requests without
 # issue (verified directly; an earlier theory that concurrent calls hang
@@ -103,7 +127,7 @@ Based only on the information above, suggest 2-4 concrete, actionable next steps
     reraise=True,
     before_sleep=before_sleep_log(logger, logging.WARNING),
 )
-def complete_messages(messages: list[dict]) -> str:
+def _complete_groq(messages: list[dict]) -> str:
     _throttle()
     settings = get_settings()
     response = get_client().chat.completions.create(
@@ -112,6 +136,50 @@ def complete_messages(messages: list[dict]) -> str:
         temperature=0.2,
     )
     return response.choices[0].message.content
+
+
+@retry(
+    retry=retry_if_exception_type(
+        (
+            GeminiRateLimitError,
+            GeminiAPIConnectionError,
+            GeminiAPITimeoutError,
+            GeminiInternalServerError,
+        )
+    ),
+    wait=wait_exponential(multiplier=2, min=2, max=60),
+    stop=stop_after_attempt(8),
+    reraise=True,
+    before_sleep=before_sleep_log(logger, logging.WARNING),
+)
+def _complete_gemini(messages: list[dict]) -> str:
+    _throttle()
+    settings = get_settings()
+    response = get_gemini_client().chat.completions.create(
+        model=settings.gemini_model_name,
+        messages=messages,
+        temperature=0.2,
+        extra_body={"reasoning_effort": "minimal"},
+    )
+    return response.choices[0].message.content
+
+
+def complete_messages(messages: list[dict]) -> str:
+    """Routes to the configured provider (LLM_PROVIDER, default "groq").
+    When Groq is primary and GEMINI_API_KEY is set, a Groq rate-limit
+    error that survives Groq's own retries falls back to Gemini once
+    rather than failing the caller outright.
+    """
+    settings = get_settings()
+    if settings.llm_provider == "gemini":
+        return _complete_gemini(messages)
+    try:
+        return _complete_groq(messages)
+    except RateLimitError:
+        if settings.gemini_api_key:
+            logger.warning("Groq rate-limited after retries; falling back to Gemini.")
+            return _complete_gemini(messages)
+        raise
 
 
 def _complete(prompt: str) -> str:
