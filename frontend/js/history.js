@@ -27,15 +27,15 @@ async function loadDetail(id) {
         </div>
         <div>${evidenceHtml}</div>
       </div>
-      <div class="ls-card-accent"><b>Grounded explanation:</b><br>${escapeHtml(a.grounded_explanation)}</div>
+      <div class="ls-card-accent"><b>Grounded explanation:</b><br>${formatLLMText(a.grounded_explanation)}</div>
       ${
         a.recommendation
-          ? `<div class="ls-card" style="white-space: pre-line; border-left: 4px solid var(--success);"><b>What to do about it:</b><br>${escapeHtml(a.recommendation)}</div>`
+          ? `<div class="ls-card" style="white-space: pre-line; border-left: 4px solid var(--success);"><b>What to do about it:</b><br>${formatLLMText(a.recommendation)}</div>`
           : ""
       }
       ${
         a.ungrounded_explanation
-          ? `<div class="ls-card"><b>Ungrounded explanation:</b><br>${escapeHtml(a.ungrounded_explanation)}</div>`
+          ? `<div class="ls-card"><b>Ungrounded explanation:</b><br>${formatLLMText(a.ungrounded_explanation)}</div>`
           : ""
       }
       ${

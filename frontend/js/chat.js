@@ -34,7 +34,7 @@ async function sendMessage() {
 
   try {
     const res = await api.chat(message, chatHistory);
-    thinkingBubble.textContent = res.reply;
+    thinkingBubble.innerHTML = formatLLMText(res.reply);
     chatHistory.push({ role: "user", content: message });
     chatHistory.push({ role: "assistant", content: res.reply });
   } catch (err) {

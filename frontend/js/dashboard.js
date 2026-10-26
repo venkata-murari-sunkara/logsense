@@ -139,7 +139,7 @@ async function loadBlockDetail(analysisId, blockId) {
         ${sourceTagHtml(a.source)}
       </div>
       <div class="ls-section-title" style="margin-top: 1rem;">AI explanation</div>
-      <p class="ls-muted" style="margin: 0;">${escapeHtml(a.grounded_explanation)}</p>
+      <p class="ls-muted" style="margin: 0;">${formatLLMText(a.grounded_explanation)}</p>
       ${
         evidenceHtml
           ? `<div class="ls-section-title">Similar past incidents</div>${evidenceHtml}`

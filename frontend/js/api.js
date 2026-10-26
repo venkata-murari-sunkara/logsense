@@ -115,6 +115,15 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// LLM output sometimes uses markdown bold ("**word**") for emphasis. We
+// don't want to render markdown generally (that's an injection surface
+// for anything beyond this one pattern), so escape first, then allow
+// only this single, narrow pattern through as real <strong> tags —
+// everything else stays as literal, safely-escaped text.
+function formatLLMText(str) {
+  return escapeHtml(str).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
+
 function confidenceHtml(block) {
   if (!block.has_analysis || block.predicted_confidence === null) {
     return `<span class="ls-muted">Not analyzed yet</span>`;

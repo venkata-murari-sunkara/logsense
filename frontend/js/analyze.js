@@ -131,19 +131,19 @@ async function runAnalysis(blockId, trueLabel) {
       </div>
 
       <div class="ls-section-title">AI explanation, grounded in evidence (RAG)</div>
-      <div class="ls-card-accent">${escapeHtml(result.grounded_explanation)}</div>
+      <div class="ls-card-accent">${formatLLMText(result.grounded_explanation)}</div>
 
       ${
         result.recommendation
           ? `<div class="ls-section-title">What to do about it</div>
-             <div class="ls-card" style="white-space: pre-line; border-left: 4px solid var(--success);">${escapeHtml(result.recommendation)}</div>`
+             <div class="ls-card" style="white-space: pre-line; border-left: 4px solid var(--success);">${formatLLMText(result.recommendation)}</div>`
           : ""
       }
 
       ${
         result.ungrounded_explanation
           ? `<div class="ls-section-title">AI explanation, without evidence (baseline)</div>
-             <div class="ls-card">${escapeHtml(result.ungrounded_explanation)}</div>`
+             <div class="ls-card">${formatLLMText(result.ungrounded_explanation)}</div>`
           : ""
       }
 
