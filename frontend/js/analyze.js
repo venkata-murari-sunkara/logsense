@@ -65,6 +65,7 @@ async function selectBlock(blockId, autoAnalyze = false) {
   selectedBlockId = blockId;
   const panel = document.getElementById("analysis-panel");
   panel.innerHTML = `<div class="ls-empty"><span class="ls-spinner"></span> Loading block ${escapeHtml(blockId)}…</div>`;
+  document.getElementById("jump-to-ticket-link").hidden = true;
   window.scrollTo({ top: 0, behavior: "smooth" });
 
   try {
@@ -149,7 +150,7 @@ async function runAnalysis(blockId, trueLabel) {
 
       ${
         result.predicted_label === "Anomaly"
-          ? `<div class="ls-section-title">Incident ticket (auto-drafted)</div>
+          ? `<div class="ls-section-title" id="ticket-anchor">Incident ticket (auto-drafted)</div>
              <div id="ticket-container-${result.id}"></div>`
           : ""
       }
@@ -157,11 +158,20 @@ async function runAnalysis(blockId, trueLabel) {
       <hr>
       <p><b>Ground truth label (for verification):</b> ${badgeHtml(trueLabel)}</p>`;
 
+    const jumpLink = document.getElementById("jump-to-ticket-link");
     if (result.predicted_label === "Anomaly") {
       renderIncidentTicket(document.getElementById(`ticket-container-${result.id}`), result.id);
+      jumpLink.hidden = false;
+      jumpLink.onclick = (e) => {
+        e.preventDefault();
+        document.getElementById("ticket-anchor").scrollIntoView({ behavior: "smooth" });
+      };
+    } else {
+      jumpLink.hidden = true;
     }
   } catch (err) {
     resultEl.innerHTML = `<div class="ls-empty">Analysis failed: ${escapeHtml(err.message)}</div>`;
+    document.getElementById("jump-to-ticket-link").hidden = true;
   } finally {
     btn.disabled = false;
   }

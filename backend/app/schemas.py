@@ -29,6 +29,8 @@ class EvidenceItem(BaseModel):
 class IncidentTicket(BaseModel):
     title: str
     body: str
+    confidence: float
+    severity: str
 
 
 class AnalysisResult(BaseModel):

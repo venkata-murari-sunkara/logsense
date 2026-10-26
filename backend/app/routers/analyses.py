@@ -73,4 +73,5 @@ def get_incident_ticket(analysis_id: int, db: Session = Depends(get_db)):
             status_code=400,
             detail="No incident ticket is needed for a Normal verdict",
         )
-    return build_incident_ticket(analysis)
+    block = db.get(Block, analysis.block_id)
+    return build_incident_ticket(analysis, block)
