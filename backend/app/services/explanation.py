@@ -65,27 +65,33 @@ def get_gemini_client() -> OpenAI:
 
 
 # Groq's free tier caps out around 8000 tokens/minute (and a separate
-# 200,000 tokens/day cap). Callers (e.g. the evaluation service) may fire
-# requests from several worker threads at once, so this throttle is global
-# and thread-safe: it enforces a minimum gap between call *starts* across
-# every thread — shared across both providers below, since it's really
-# about not hammering whichever LLM is currently in use. The lock is
-# released before the network call itself, so
-# multiple calls can be in flight at once once their spacing has been
-# satisfied — that's fine, Groq's client handles concurrent requests without
-# issue (verified directly; an earlier theory that concurrent calls hang
-# was a red herring — what actually happened was silent retry-then-failure
-# against an exhausted daily quota, which is now logged, see below).
+# 200,000 tokens/day cap) — ~9 calls/minute at this app's typical token
+# usage, so 3s between call starts is already close to the real ceiling,
+# not an arbitrary choice. Gemini on a paid plan has much more headroom:
+# a 15-call burst with zero spacing came back clean (all 200s, no
+# rate-limit errors), so it gets its own, much shorter interval. Callers
+# (e.g. the evaluation service) may fire requests from several worker
+# threads at once, so this throttle is global and thread-safe: it
+# enforces a minimum gap between call *starts* across every thread, with
+# each call site passing the interval that's safe for the provider it's
+# actually about to call. The lock is released before the network call
+# itself, so multiple calls can be in flight at once once their spacing
+# has been satisfied — that's fine, both clients handle concurrent
+# requests without issue (verified directly; an earlier theory that
+# concurrent calls hang was a red herring — what actually happened was
+# silent retry-then-failure against an exhausted daily quota, which is
+# now logged, see below).
 _rate_lock = threading.Lock()
 _last_call_at = 0.0
 MIN_CALL_INTERVAL_SECONDS = 3.0
+GEMINI_MIN_CALL_INTERVAL_SECONDS = 1.0
 
 
-def _throttle() -> None:
+def _throttle(min_interval_seconds: float = MIN_CALL_INTERVAL_SECONDS) -> None:
     global _last_call_at
     with _rate_lock:
         now = time.monotonic()
-        wait = _last_call_at + MIN_CALL_INTERVAL_SECONDS - now
+        wait = _last_call_at + min_interval_seconds - now
         if wait > 0:
             time.sleep(wait)
             now = time.monotonic()
@@ -165,7 +171,7 @@ def _complete_groq(messages: list[dict]) -> str:
     before_sleep=before_sleep_log(logger, logging.WARNING),
 )
 def _complete_gemini(messages: list[dict]) -> str:
-    _throttle()
+    _throttle(GEMINI_MIN_CALL_INTERVAL_SECONDS)
     settings = get_settings()
     response = get_gemini_client().chat.completions.create(
         model=settings.gemini_model_name,
