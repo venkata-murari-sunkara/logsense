@@ -1,15 +1,32 @@
 import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import exists, select
+from sqlalchemy import Integer, cast, exists, or_, select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Analysis, Block
 from app.schemas import AnalysisResult, BlockDetail, BlockSummary
+from app.services.detector import EVENT_COLUMNS
 from app.services.pipeline import analyze_block
 
 router = APIRouter(prefix="/api/blocks", tags=["blocks"])
+
+# Confidence alone leaves huge ties in the priority queue (most flagged
+# blocks sit at ~100%). These break those ties: blocks whose history
+# includes an exception/error-type event first (checked directly against
+# ground truth — 67.5% of real anomalies have one vs 7.0% of false alarms
+# at 100% confidence, a real signal), then by total event volume, then by
+# block_id so the order is fully stable.
+ERROR_EVENT_CODES = ["E4", "E7", "E10", "E12", "E14", "E17", "E20"]
+
+
+def _has_error_event_expr():
+    return or_(*(cast(Block.event_counts[code].astext, Integer) > 0 for code in ERROR_EVENT_CODES))
+
+
+def _total_event_count_expr():
+    return sum(cast(Block.event_counts[code].astext, Integer) for code in EVENT_COLUMNS)
 
 
 def _has_analysis_expr():
@@ -38,7 +55,12 @@ def list_blocks(
     if reviewed is not None:
         stmt = stmt.where(Block.reviewed_at.is_not(None) if reviewed else Block.reviewed_at.is_(None))
     if sort == "confidence_desc":
-        stmt = stmt.order_by(Block.predicted_confidence.desc().nulls_last())
+        stmt = stmt.order_by(
+            Block.predicted_confidence.desc().nulls_last(),
+            _has_error_event_expr().desc(),
+            _total_event_count_expr().desc(),
+            Block.block_id.asc(),
+        )
     else:
         stmt = stmt.order_by(Block.block_id)
     stmt = stmt.limit(limit).offset(offset)
