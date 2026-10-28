@@ -6,7 +6,7 @@
   <title>LogSense — Evaluation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=1793060146" />
+  <link rel="stylesheet" href="css/styles.css?v=1793126019" />
 </head>
 <body>
   <div class="ls-shell">
@@ -42,6 +42,7 @@
           <label class="ls-muted" for="sample-size">Sample size (split evenly across anomaly / normal):</label>
           <input type="number" id="sample-size" value="100" min="2" max="500" step="2" />
           <button class="ls-btn" id="run-btn">Run evaluation</button>
+          <button class="ls-btn ls-btn-ghost" id="stop-btn" hidden>Stop</button>
         </div>
         <p id="sample-size-warning" class="ls-muted" style="color: var(--danger-text);" hidden></p>
         <p class="ls-muted" id="run-status"></p>
@@ -54,7 +55,7 @@
     </main>
   </div>
 
-  <script src="js/api.js?v=1793060146"></script>
-  <script src="js/evaluate.js?v=1793060146"></script>
+  <script src="js/api.js?v=1793126019"></script>
+  <script src="js/evaluate.js?v=1793126019"></script>
 </body>
 </html>

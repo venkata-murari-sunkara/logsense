@@ -1,20 +1,49 @@
 let pollTimer = null;
+let stoppingRunId = null;
+let currentRunId = null;
 const MIN_RELIABLE_SAMPLE = 20;
 
+function formatDuration(ms) {
+  const totalSeconds = Math.max(0, Math.round(ms / 1000));
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
+
 function statusLine(run) {
+  const total = run.sample_size;
+  const done = run.results ? run.results.length : null;
+
   if (run.status === "running") {
-    return `<span class="ls-spinner"></span> Run #${run.id} in progress (n=${run.sample_size})… this calls the LLM ${run.sample_size * 2} times, so it can take a few minutes.`;
+    if (stoppingRunId === run.id) {
+      return `Stopping… (already-in-progress cases are finishing, nothing new will start)`;
+    }
+    const elapsed = formatDuration(Date.now() - new Date(run.created_at).getTime());
+    const progress = done !== null ? `${done} of ${total} done · ${total - done} remaining · ` : "";
+    return `<span class="ls-spinner"></span> Run #${run.id}: ${progress}Elapsed ${elapsed}`;
   }
+
+  const duration = run.completed_at
+    ? formatDuration(new Date(run.completed_at).getTime() - new Date(run.created_at).getTime())
+    : "";
+
+  if (run.status === "stopped") {
+    const attempted = done !== null ? done + (run.failed_count || 0) : total;
+    return `Stopped at ${attempted} of ${total} · ran for ${duration}`;
+  }
+
   if (run.status === "failed") {
-    return `Run #${run.id} failed.`;
+    return `Run #${run.id} failed after ${duration}.`;
   }
-  const effectiveN = run.sample_size - (run.failed_count || 0);
+
+  // completed
+  const effectiveN = total - (run.failed_count || 0);
   const caveat =
     effectiveN < MIN_RELIABLE_SAMPLE
       ? ` ⚠️ n=${effectiveN} is too small to be statistically meaningful — treat this as noise, not a real result.`
       : "";
   const failedNote = run.failed_count > 0 ? ` (${run.failed_count} block(s) failed and were skipped)` : "";
-  return `Run #${run.id} completed: grounded ${(run.grounded_accuracy * 100).toFixed(0)}% vs ungrounded ${(run.ungrounded_accuracy * 100).toFixed(0)}% on n=${effectiveN}.${failedNote}${caveat}`;
+  return `Finished ${total} cases in ${duration}: grounded ${(run.grounded_accuracy * 100).toFixed(0)}% vs ungrounded ${(run.ungrounded_accuracy * 100).toFixed(0)}% on n=${effectiveN}.${failedNote}${caveat}`;
 }
 
 function updateSampleSizeWarning() {
@@ -30,24 +59,50 @@ function updateSampleSizeWarning() {
 
 async function pollRun(id) {
   clearInterval(pollTimer);
+  currentRunId = id;
   const statusEl = document.getElementById("run-status");
+  const stopBtn = document.getElementById("stop-btn");
+  document.getElementById("run-btn").disabled = true;
+
   const tick = async () => {
     try {
       const run = await api.getEvaluation(id);
       statusEl.innerHTML = statusLine(run);
-      if (run.status !== "running") {
+      if (run.status === "running") {
+        stopBtn.hidden = false;
+        stopBtn.disabled = stoppingRunId === run.id;
+        stopBtn.textContent = stoppingRunId === run.id ? "Stopping…" : "Stop";
+      } else {
         clearInterval(pollTimer);
+        stoppingRunId = null;
+        stopBtn.hidden = true;
         document.getElementById("run-btn").disabled = false;
         loadRuns();
       }
     } catch (err) {
       statusEl.textContent = `Failed to poll run: ${err.message}`;
       clearInterval(pollTimer);
+      stopBtn.hidden = true;
       document.getElementById("run-btn").disabled = false;
     }
   };
   await tick();
   pollTimer = setInterval(tick, 2500);
+}
+
+async function stopRun(id) {
+  stoppingRunId = id;
+  const stopBtn = document.getElementById("stop-btn");
+  stopBtn.disabled = true;
+  stopBtn.textContent = "Stopping…";
+  try {
+    await api.stopEvaluation(id);
+  } catch (err) {
+    stoppingRunId = null;
+    document.getElementById("run-status").textContent = `Failed to stop run: ${err.message}`;
+    stopBtn.disabled = false;
+    stopBtn.textContent = "Stop";
+  }
 }
 
 async function runEvaluation() {
@@ -65,6 +120,13 @@ async function runEvaluation() {
   }
 }
 
+function statusLabelHtml(status) {
+  if (status === "stopped") {
+    return `<span title="Stopped before all cases finished — excluded from dashboard accuracy totals">Stopped (partial)</span>`;
+  }
+  return escapeHtml(status);
+}
+
 async function loadRuns() {
   const listEl = document.getElementById("run-list");
   try {
@@ -76,7 +138,7 @@ async function loadRuns() {
     listEl.innerHTML = `
       <div class="ls-table-wrap">
         <table class="ls-table">
-          <thead><tr><th>#</th><th>Sample size</th><th>Status</th><th>Grounded</th><th>Ungrounded</th><th>When</th></tr></thead>
+          <thead><tr><th>#</th><th>Sample size</th><th>Status</th><th>Grounded</th><th>Ungrounded</th><th>Duration</th><th>When</th></tr></thead>
           <tbody>
             ${runs
               .map(
@@ -84,9 +146,10 @@ async function loadRuns() {
               <tr data-id="${r.id}">
                 <td>${r.id}</td>
                 <td>${r.sample_size}${r.failed_count > 0 ? ` <span class="ls-muted" title="${r.failed_count} block(s) failed and were skipped">(${r.failed_count} failed)</span>` : ""}${r.sample_size - (r.failed_count || 0) < MIN_RELIABLE_SAMPLE ? ' <span title="Sample too small to be statistically meaningful">⚠️</span>' : ""}</td>
-                <td>${escapeHtml(r.status)}</td>
+                <td>${statusLabelHtml(r.status)}</td>
                 <td>${r.grounded_accuracy !== null ? (r.grounded_accuracy * 100).toFixed(0) + "%" : "—"}</td>
                 <td>${r.ungrounded_accuracy !== null ? (r.ungrounded_accuracy * 100).toFixed(0) + "%" : "—"}</td>
+                <td class="ls-muted">${r.completed_at ? formatDuration(new Date(r.completed_at) - new Date(r.created_at)) : "—"}</td>
                 <td class="ls-muted">${formatDate(r.created_at)}</td>
               </tr>`
               )
@@ -119,15 +182,19 @@ async function loadRunDetail(id) {
       </tr>`
       )
       .join("");
-    const succeeded = run.sample_size - (run.failed_count || 0);
+    const succeeded = run.results.length;
+    const duration = run.completed_at
+      ? formatDuration(new Date(run.completed_at) - new Date(run.created_at))
+      : "—";
     el.innerHTML = `
-      <div class="ls-section-title">Run #${run.id} detail</div>
+      <div class="ls-section-title">Run #${run.id} detail ${run.status === "stopped" ? "— Stopped (partial)" : ""}</div>
       <div class="ls-card">
         Requested n=${run.sample_size} &nbsp;·&nbsp;
         <span class="${run.failed_count > 0 ? "" : "ls-muted"}">${succeeded} succeeded, ${run.failed_count || 0} failed and excluded</span>
         &nbsp;·&nbsp; grounded ${run.grounded_accuracy !== null ? (run.grounded_accuracy * 100).toFixed(1) + "%" : "—"}
         vs ungrounded ${run.ungrounded_accuracy !== null ? (run.ungrounded_accuracy * 100).toFixed(1) + "%" : "—"}
         <span class="ls-muted">(accuracy computed only over the ${succeeded} succeeded blocks)</span>
+        &nbsp;·&nbsp; ran for ${duration}
       </div>
       <div class="ls-table-wrap">
         <table class="ls-table">
@@ -141,6 +208,24 @@ async function loadRunDetail(id) {
 }
 
 document.getElementById("run-btn").onclick = runEvaluation;
+document.getElementById("stop-btn").onclick = () => {
+  if (currentRunId !== null) stopRun(currentRunId);
+};
 document.getElementById("sample-size").addEventListener("input", updateSampleSizeWarning);
 updateSampleSizeWarning();
-loadRuns();
+
+// If a run is already in progress (e.g. the page was refreshed mid-run),
+// resume live tracking instead of just showing it in the static history
+// list — status is never lost on the backend, this just restores the
+// frontend's view of it.
+(async () => {
+  await loadRuns();
+  try {
+    const runs = await api.listEvaluations({ limit: 1 });
+    if (runs.length > 0 && runs[0].status === "running") {
+      pollRun(runs[0].id);
+    }
+  } catch (_) {
+    /* non-fatal — the history list already loaded */
+  }
+})();

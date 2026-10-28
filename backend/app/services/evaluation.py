@@ -2,7 +2,8 @@ import datetime
 import logging
 import random
 import re
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -13,6 +14,27 @@ from app.services import explanation
 from app.services.retrieval import get_similar_incidents
 
 logger = logging.getLogger("logsense.evaluation")
+
+# Lets a separate HTTP request (the /stop endpoint) reach into a run's
+# in-flight futures. All blocks are submitted to the executor up front, so
+# "stop" just means: cancel every future that hasn't started running yet
+# (Future.cancel() does nothing to one already in progress — cutting an
+# LLM call off mid-request would waste it, so those are left to finish).
+_active_futures_lock = threading.Lock()
+_active_futures: dict[int, list[Future]] = {}
+
+
+def request_stop(run_id: int) -> bool:
+    """Returns False if this run isn't tracked here (e.g. the server
+    restarted since it started) — the caller is responsible for not
+    leaving the run stuck at "running" in that case."""
+    with _active_futures_lock:
+        futures = _active_futures.get(run_id)
+    if futures is None:
+        return False
+    for f in futures:
+        f.cancel()
+    return True
 
 ANOMALY_WORDS = [
     "anomaly", "anomalous", "fail", "error", "issue", "problem",
@@ -166,38 +188,49 @@ def run_evaluation(run_id: int, sample_size: int) -> None:
         ungrounded_correct_count = 0
         succeeded = 0
         failed = 0
+        was_stopped = False
 
         with ThreadPoolExecutor(max_workers=BATCH_SIZE) as executor:
             futures = [executor.submit(_process_block, bd) for bd in block_dicts]
-            for future in as_completed(futures):
-                result = future.result()
-                if not result["ok"]:
-                    failed += 1
-                    continue
+            with _active_futures_lock:
+                _active_futures[run_id] = futures
+            try:
+                for future in as_completed(futures):
+                    if future.cancelled():
+                        was_stopped = True
+                        continue
+                    result = future.result()
+                    if not result["ok"]:
+                        failed += 1
+                        continue
 
-                succeeded += 1
-                grounded_correct_count += int(result["grounded_correct"])
-                ungrounded_correct_count += int(result["ungrounded_correct"])
-                db.add(
-                    EvaluationResult(
-                        evaluation_run_id=run_id,
-                        block_id=result["block_id"],
-                        true_label=result["true_label"],
-                        grounded_verdict=result["grounded_verdict"],
-                        grounded_correct=result["grounded_correct"],
-                        ungrounded_verdict=result["ungrounded_verdict"],
-                        ungrounded_correct=result["ungrounded_correct"],
+                    succeeded += 1
+                    grounded_correct_count += int(result["grounded_correct"])
+                    ungrounded_correct_count += int(result["ungrounded_correct"])
+                    db.add(
+                        EvaluationResult(
+                            evaluation_run_id=run_id,
+                            block_id=result["block_id"],
+                            true_label=result["true_label"],
+                            grounded_verdict=result["grounded_verdict"],
+                            grounded_correct=result["grounded_correct"],
+                            ungrounded_verdict=result["ungrounded_verdict"],
+                            ungrounded_correct=result["ungrounded_correct"],
+                        )
                     )
-                )
-                db.commit()
+                    db.commit()
+            finally:
+                with _active_futures_lock:
+                    _active_futures.pop(run_id, None)
 
-        if succeeded == 0:
+        if succeeded == 0 and not was_stopped:
             raise RuntimeError(f"All {failed} sampled blocks failed; no results were collected")
 
-        run.grounded_accuracy = grounded_correct_count / succeeded
-        run.ungrounded_accuracy = ungrounded_correct_count / succeeded
+        if succeeded > 0:
+            run.grounded_accuracy = grounded_correct_count / succeeded
+            run.ungrounded_accuracy = ungrounded_correct_count / succeeded
         run.failed_count = failed
-        run.status = "completed"
+        run.status = "stopped" if was_stopped else "completed"
         run.completed_at = datetime.datetime.now(datetime.timezone.utc)
         db.commit()
     except Exception as exc:  # noqa: BLE001
