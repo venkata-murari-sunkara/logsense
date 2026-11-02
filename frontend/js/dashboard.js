@@ -75,10 +75,15 @@ async function loadBanner() {
 
     if (topPriorityBlock) {
       const conf = (topPriorityBlock.predicted_confidence * 100).toFixed(0);
+      const errorNote = topPriorityBlock.has_error_event ? "has an error event" : "no error event";
+      const why =
+        topPriorityBlock.total_event_count !== null && topPriorityBlock.total_event_count !== undefined
+          ? ` <span class="ls-muted">— ${errorNote} · ${topPriorityBlock.total_event_count} events</span>`
+          : "";
       el.innerHTML = `
         <b>${stats.flagged_unreviewed.toLocaleString()}</b> flagged case(s) still need a look —
         highest priority is <b>${escapeHtml(topPriorityBlock.block_id)}</b>
-        <span class="ls-muted">(${conf}% confidence)</span>`;
+        <span class="ls-muted">(${conf}% confidence)</span>${why}`;
       btn.disabled = false;
       btn.textContent = "Review block →";
     } else {

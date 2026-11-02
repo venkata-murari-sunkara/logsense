@@ -45,7 +45,9 @@ def list_blocks(
     db: Session = Depends(get_db),
 ):
     has_analysis_expr = _has_analysis_expr()
-    stmt = select(Block, has_analysis_expr)
+    has_error_expr = _has_error_event_expr()
+    total_events_expr = _total_event_count_expr()
+    stmt = select(Block, has_analysis_expr, has_error_expr, total_events_expr)
     if label:
         stmt = stmt.where(Block.true_label == label)
     if predicted_label:
@@ -66,8 +68,14 @@ def list_blocks(
     stmt = stmt.limit(limit).offset(offset)
     rows = db.execute(stmt).all()
     return [
-        BlockSummary.model_validate(block).model_copy(update={"has_analysis": has_analysis})
-        for block, has_analysis in rows
+        BlockSummary.model_validate(block).model_copy(
+            update={
+                "has_analysis": has_analysis,
+                "has_error_event": has_error,
+                "total_event_count": total_events,
+            }
+        )
+        for block, has_analysis, has_error, total_events in rows
     ]
 
 

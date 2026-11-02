@@ -37,7 +37,7 @@ async function loadPriorities(offset = 0) {
       listEl.innerHTML = `
         <div class="ls-table-wrap">
           <table class="ls-table">
-            <thead><tr><th>#</th><th>Block</th><th>Priority</th><th title="How sure the AI is in this verdict">Confidence</th><th>Reviewed?</th><th></th></tr></thead>
+            <thead><tr><th>#</th><th>Block</th><th>Priority</th><th title="How sure the AI is in this verdict">Confidence</th><th title="Why this is ranked where it is, when confidence alone ties">Why first</th><th>Reviewed?</th><th></th></tr></thead>
             <tbody>
               ${blocks
                 .map(
@@ -47,6 +47,7 @@ async function loadPriorities(offset = 0) {
                   <td>${escapeHtml(b.block_id)}</td>
                   <td>${severityHtml(b.predicted_confidence)}</td>
                   <td title="How sure the AI is in this verdict">${b.predicted_confidence !== null ? (b.predicted_confidence * 100).toFixed(1) + "%" : "—"}</td>
+                  <td class="ls-muted">${b.total_event_count !== null && b.total_event_count !== undefined ? `${b.has_error_event ? "Error event" : "No error event"} · ${b.total_event_count} events` : "—"}</td>
                   <td>${b.reviewed_at ? `<span class="ls-badge ls-badge-muted" title="Reviewed ${formatDate(b.reviewed_at)}">Reviewed</span>` : '<span class="ls-muted">Not yet</span>'}</td>
                   <td><button class="ls-btn ls-btn-ghost review-btn" data-block-id="${escapeHtml(b.block_id)}">Review</button></td>
                 </tr>`

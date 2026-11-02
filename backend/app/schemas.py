@@ -12,6 +12,8 @@ class BlockSummary(BaseModel):
     predicted_confidence: float | None
     has_analysis: bool = False
     reviewed_at: datetime.datetime | None = None
+    has_error_event: bool | None = None
+    total_event_count: int | None = None
 
 
 class BlockDetail(BlockSummary):
