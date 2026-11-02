@@ -16,19 +16,19 @@ async function loadStats() {
       statCard(
         "Blocks monitored",
         stats.total_blocks.toLocaleString(),
-        "Every system event on record",
+        "Every block in the dataset",
         "Each 'block' is one unit of system activity the AI can check"
       ),
       statCard(
         "Confirmed past problems",
         stats.anomaly_count.toLocaleString(),
-        `${((stats.anomaly_count / stats.total_blocks) * 100).toFixed(2)}% of all activity · ground-truth anomalies`,
+        `${((stats.anomaly_count / stats.total_blocks) * 100).toFixed(2)}% of all blocks · labeled anomalies in the dataset`,
         "Verified real incidents from historical records, not AI guesses"
       ),
       statCard(
         "Flagged for review",
         stats.flagged_unreviewed.toLocaleString(),
-        `Awaiting review, out of ${stats.flagged_by_model.toLocaleString()} the AI has ever flagged`
+        `Flagged by the AI, not yet reviewed (${stats.flagged_by_model.toLocaleString()} flagged in total)`
       ),
       statCard(
         "Total analyses run",
