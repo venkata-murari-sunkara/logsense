@@ -7,7 +7,7 @@
   <title>LogSense — About</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=1793635372" />
+  <link rel="stylesheet" href="css/styles.css?v=1793636241" />
 </head>
 <body>
   <div class="ls-shell">
@@ -35,56 +35,62 @@
     </aside>
 
     <main class="ls-main">
-      <div class="ls-header">
-        <h1>About LogSense</h1>
-        <p>What this is, how it works, and how well it actually performs.</p>
+      <div class="ls-about">
+        <div class="ls-about-hero">
+          <div class="ls-about-logo">L</div>
+          <h1>LogSense</h1>
+          <p class="ls-about-tagline">Find unusual log blocks and see why, backed by similar past incidents.</p>
+        </div>
+
+        <p class="ls-about-lead">LogSense is an AI-powered anomaly detector for HDFS system logs that explains its verdicts using similar past incidents instead of guessing blind.</p>
+
+        <div class="ls-about-steps">
+          <div class="ls-about-step">
+            <span class="ls-about-step-num">1</span>
+            <div>
+              <h3>Retrieve</h3>
+              <p>Finds similar past incidents from the historical dataset using vector similarity search.</p>
+            </div>
+          </div>
+          <div class="ls-about-step">
+            <span class="ls-about-step-num">2</span>
+            <div>
+              <h3>Explain</h3>
+              <p>The AI explains its verdict using those real past cases as evidence, not a blind guess.</p>
+            </div>
+          </div>
+          <div class="ls-about-step">
+            <span class="ls-about-step-num">3</span>
+            <div>
+              <h3>Draft</h3>
+              <p>If it looks like a real problem, a draft incident ticket is created automatically.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ls-about-divider"></div>
+
+        <p class="ls-about-body">Trained and tested on real HDFS (Hadoop Distributed File System) logs — <span class="ls-about-stat-inline">575,061</span> blocks, each labeled Normal or Anomaly from verified historical records.</p>
+
+        <div class="ls-about-divider"></div>
+
+        <div class="ls-about-stats">
+          <div class="ls-about-stat" title="How often the AI was right when it had similar past cases to compare against">
+            <div class="ls-about-stat-value" style="color: var(--info-strong);">~85%</div>
+            <div class="ls-about-stat-label">Accurate, with similar past incidents</div>
+          </div>
+          <div class="ls-about-stat" title="How often the AI was right when guessing without any past cases to compare against">
+            <div class="ls-about-stat-value" style="color: var(--warning-strong);">~31%</div>
+            <div class="ls-about-stat-label">Accurate, guessing without them</div>
+          </div>
+        </div>
+        <p class="ls-about-note">From a 200-case test run on Oct 28, 2026. Each AI explanation is scored by counting anomaly- vs. normal-leaning keywords in the text — a simple, approximate method, so treat these numbers as an estimate, not a precise measurement.</p>
+
+        <div class="ls-about-divider"></div>
+
+        <p class="ls-about-credit">Built by Venkata Murari Sunkara — MSIT, Clark University — Capstone.</p>
       </div>
 
-      <div class="ls-section-title">What it is</div>
-      <div class="ls-card">
-        <p style="margin: 0;">LogSense is an AI-powered anomaly detector for HDFS system logs that explains its verdicts using similar past incidents instead of guessing blind.</p>
-      </div>
-
-      <div class="ls-section-title">How it works</div>
-      <div class="ls-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-        <div class="ls-card">
-          <div class="ls-metric-label">1. Retrieve</div>
-          <p style="margin: 0;">Finds similar past incidents from the historical dataset using vector similarity search.</p>
-        </div>
-        <div class="ls-card">
-          <div class="ls-metric-label">2. Explain</div>
-          <p style="margin: 0;">The AI explains its verdict using those real past cases as evidence, not a blind guess.</p>
-        </div>
-        <div class="ls-card">
-          <div class="ls-metric-label">3. Draft</div>
-          <p style="margin: 0;">If it looks like a real problem, a draft incident ticket is created automatically.</p>
-        </div>
-      </div>
-
-      <div class="ls-section-title">The data</div>
-      <div class="ls-card">
-        <p style="margin: 0;">Real HDFS (Hadoop Distributed File System) system logs — <b>575,061</b> blocks, each labeled Normal or Anomaly from verified historical records.</p>
-      </div>
-
-      <div class="ls-section-title">How well it works</div>
-      <div class="ls-grid ls-grid-2">
-        <div class="ls-metric-box" title="How often the AI was right when it had similar past cases to compare against">
-          <div class="ls-metric-label">With similar past incidents</div>
-          <div class="ls-metric-value ls-metric-grounded">~85%</div>
-          <div class="ls-metric-sub">Accurate verdicts, grounded in evidence</div>
-        </div>
-        <div class="ls-metric-box" title="How often the AI was right when guessing without any past cases to compare against">
-          <div class="ls-metric-label">Without them (guessing)</div>
-          <div class="ls-metric-value ls-metric-ungrounded">~31%</div>
-          <div class="ls-metric-sub">Accurate verdicts, no evidence given</div>
-        </div>
-      </div>
-      <p class="ls-muted" style="margin-top: 0.75rem;">From a 200-case test run on Oct 28, 2026. Each AI explanation is scored by counting anomaly- vs. normal-leaning keywords in the text — a simple, approximate method, so treat these numbers as an estimate, not a precise measurement.</p>
-
-      <div class="ls-section-title">Built by</div>
-      <div class="ls-card">
-        <p style="margin: 0;">Venkata Murari Sunkara — MSIT, Clark University — Capstone.</p>
-      </div>
       <footer class="ls-footer">LogSense · v1.0 · <a href="about.html">About</a> · Clark University</footer>
     </main>
   </div>
