@@ -36,6 +36,32 @@ def request_stop(run_id: int) -> bool:
         f.cancel()
     return True
 
+
+def mark_orphaned_runs_failed() -> int:
+    """Call once at process startup. Safe only because this app runs as a
+    single process (no --workers flag in the start command; Railway's own
+    logs show WEB_CONCURRENCY=1) — with multiple workers, one worker's
+    startup sweep could wrongly kill another worker's genuinely live run.
+
+    A row still marked "running" at the moment this runs cannot belong to
+    *this* process — _active_futures is empty here, nothing has been
+    submitted yet — so it can only be left over from a previous process
+    that died or restarted mid-run, with no worker left to ever finish it.
+    """
+    db = SessionLocal()
+    try:
+        stale = db.execute(select(EvaluationRun).where(EvaluationRun.status == "running")).scalars().all()
+        for run in stale:
+            run.status = "failed"
+            run.error = "Marked failed on startup: no active worker for this run after a restart."
+            run.completed_at = datetime.datetime.now(datetime.timezone.utc)
+        if stale:
+            db.commit()
+        return len(stale)
+    finally:
+        db.close()
+
+
 ANOMALY_WORDS = [
     "anomaly", "anomalous", "fail", "error", "issue", "problem",
     "unusual", "concern", "unexpected", "corrupt", "abnormal",

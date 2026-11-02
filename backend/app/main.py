@@ -1,8 +1,11 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from starlette.staticfiles import StaticFiles
 from starlette.types import Scope
+
+logger = logging.getLogger("logsense.main")
 
 
 class NoCacheStaticFiles(StaticFiles):
@@ -23,6 +26,7 @@ from app.routers import analyses, blocks, chat, evaluations, reports, simulation
 from app.services import simulation as simulation_service
 from app.services.detector import get_model
 from app.services.embeddings import get_embedding_model
+from app.services.evaluation import mark_orphaned_runs_failed
 from app.services.explanation import get_client
 
 
@@ -36,6 +40,12 @@ async def lifespan(app: FastAPI):
     get_model()
     get_embedding_model()
     get_client()
+    # This app runs as a single process (see mark_orphaned_runs_failed's
+    # docstring) — a "running" row at this exact moment is always a leftover
+    # from a previous process, never a real in-progress run of this one.
+    orphaned = mark_orphaned_runs_failed()
+    if orphaned:
+        logger.warning("Marked %d orphaned evaluation run(s) as failed on startup", orphaned)
     yield
     simulation_service.stop()
 
