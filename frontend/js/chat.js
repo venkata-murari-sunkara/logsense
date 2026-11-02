@@ -40,7 +40,7 @@ async function sendMessage() {
   } catch (err) {
     thinkingBubble.parentElement.classList.remove("assistant");
     thinkingBubble.parentElement.classList.add("error");
-    thinkingBubble.textContent = `Couldn't get a response: ${err.message}`;
+    thinkingBubble.textContent = `Sorry, I couldn't get a response just now. Please try again in a moment. (${err.message})`;
   } finally {
     sendBtn.disabled = false;
     input.focus();

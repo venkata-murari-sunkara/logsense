@@ -2,6 +2,11 @@ const PAGE_SIZE = 20;
 let currentOffset = 0;
 let selectedBlockId = null;
 
+// Real blocks, both ground truth and model verdict agreeing with high
+// confidence, so clicking either one always demos a clean, clear-cut case.
+const EXAMPLE_ANOMALY_BLOCK = "blk_-1819104424294912767";
+const EXAMPLE_NORMAL_BLOCK = "blk_-1000002529962039464";
+
 function currentFilters() {
   return {
     search: document.getElementById("search-input").value.trim(),
@@ -170,7 +175,7 @@ async function runAnalysis(blockId, trueLabel) {
       jumpLink.hidden = true;
     }
   } catch (err) {
-    resultEl.innerHTML = `<div class="ls-empty">Analysis failed: ${escapeHtml(err.message)}</div>`;
+    resultEl.innerHTML = `<div class="ls-empty">Couldn't finish analyzing this block — the AI didn't respond. Please try again in a moment. <span class="ls-muted">(${escapeHtml(err.message)})</span></div>`;
     document.getElementById("jump-to-ticket-link").hidden = true;
   } finally {
     btn.disabled = false;
@@ -183,6 +188,14 @@ document.getElementById("search-input").addEventListener("keydown", (e) => {
 });
 document.getElementById("label-filter").onchange = () => loadBlocks(0);
 document.getElementById("predicted-filter").onchange = () => loadBlocks(0);
+document.getElementById("example-anomaly-btn").onclick = () => {
+  document.getElementById("search-input").value = EXAMPLE_ANOMALY_BLOCK;
+  selectBlock(EXAMPLE_ANOMALY_BLOCK, true);
+};
+document.getElementById("example-normal-btn").onclick = () => {
+  document.getElementById("search-input").value = EXAMPLE_NORMAL_BLOCK;
+  selectBlock(EXAMPLE_NORMAL_BLOCK, true);
+};
 
 loadBlocks(0);
 

@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <title>LogSense — Analyze</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=1793126019" />
+  <link rel="stylesheet" href="css/styles.css?v=1793635372" />
 </head>
 <body>
   <div class="ls-shell">
@@ -37,7 +38,11 @@
       <div class="ls-header">
         <h1>Analyze a block</h1>
         <p>Search the full block catalog, pick one, and run the detection + retrieval + explanation pipeline.</p>
-        <a href="#ticket-anchor" class="ls-btn ls-btn-ghost" id="jump-to-ticket-link" hidden>Jump to ticket ↓</a>
+        <div class="ls-row">
+          <button class="ls-btn ls-btn-ghost" id="example-anomaly-btn" type="button">Try an example: Anomaly</button>
+          <button class="ls-btn ls-btn-ghost" id="example-normal-btn" type="button">Try an example: Normal</button>
+          <a href="#ticket-anchor" class="ls-btn ls-btn-ghost" id="jump-to-ticket-link" hidden>Jump to ticket ↓</a>
+        </div>
       </div>
 
       <div id="analysis-panel"></div>
@@ -62,10 +67,11 @@
 
       <div id="block-list"></div>
       <div class="ls-pagination" id="pagination"></div>
+      <footer class="ls-footer">LogSense · v1.0 · <a href="about.html">About</a> · Clark University</footer>
     </main>
   </div>
 
-  <script src="js/api.js?v=1793126019"></script>
-  <script src="js/analyze.js?v=1793126019"></script>
+  <script src="js/api.js?v=1793635372"></script>
+  <script src="js/analyze.js?v=1793635372"></script>
 </body>
 </html>

@@ -357,3 +357,14 @@ code { background: var(--bg); padding: 0.1rem 0.4rem; border-radius: 4px; font-s
 .ls-toggle[aria-checked="true"] .ls-toggle-knob { left: 18px; }
 .ls-toggle-label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); min-width: 24px; text-align: left; }
 .ls-toggle:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ---------- Footer ---------- */
+.ls-footer {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+.ls-footer a { color: var(--text-faint); text-decoration: underline; }
+.ls-footer a:hover { color: var(--accent); }
