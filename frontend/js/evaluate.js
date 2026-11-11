@@ -1,6 +1,7 @@
 let pollTimer = null;
 let stoppingRunId = null;
 let currentRunId = null;
+let currentDetailRunId = null;
 const MIN_RELIABLE_SAMPLE = 20;
 
 function formatDuration(ms) {
@@ -78,6 +79,7 @@ async function pollRun(id) {
         stopBtn.hidden = true;
         document.getElementById("run-btn").disabled = false;
         loadRuns();
+        if (currentDetailRunId === String(id)) loadRunDetail(id, { scroll: false });
       }
     } catch (err) {
       statusEl.textContent = `Failed to poll run: ${err.message}`;
@@ -179,10 +181,11 @@ async function loadRuns() {
   }
 }
 
-async function loadRunDetail(id) {
+async function loadRunDetail(id, { scroll = true } = {}) {
+  currentDetailRunId = String(id);
   const el = document.getElementById("run-detail");
   el.innerHTML = `<div class="ls-empty"><span class="ls-spinner"></span> Loading run #${id}…</div>`;
-  el.scrollIntoView({ behavior: "smooth" });
+  if (scroll) el.scrollIntoView({ behavior: "smooth" });
   try {
     const run = await api.getEvaluation(id);
     const rowsHtml = run.results
