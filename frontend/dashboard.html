@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <title>LogSense — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css?v=1794419247" />
+</head>
+<body>
+  <div class="ls-shell">
+    <aside class="ls-sidebar">
+      <a href="index.html" class="ls-brand">LogSense</a>
+      <p class="ls-muted" style="margin: -0.4rem 0.5rem 0.75rem; font-size: 0.78rem;">Find unusual log blocks and see why, backed by similar past incidents.</p>
+      <nav class="ls-nav">
+        <div class="ls-nav-header">Monitor</div>
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="priorities.html">Priorities <span class="ls-badge" id="nav-priorities-badge" hidden></span></a>
+        <div class="ls-nav-header">Investigate</div>
+        <a href="analyze.html">Analyze</a>
+        <a href="history.html">History</a>
+        <a href="chat.html">Chat</a>
+        <div class="ls-nav-header">Model</div>
+        <a href="evaluate.html">Evaluation</a>
+        <a href="reports.html">Reports</a>
+      </nav>
+      <div class="ls-sidebar-info">
+        <strong>Dataset · HDFS</strong>
+        <div class="ls-mono">575,061 blocks indexed</div>
+        <div class="ls-dot-row"><span class="ls-dot"></span>Retriever online</div>
+      </div>
+    </aside>
+
+    <main class="ls-main">
+      <header class="ls-row" style="justify-content: space-between;">
+        <div class="ls-row" style="flex: 1; min-width: 240px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 0.75rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-faint); flex: none;"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="topbar-search" placeholder="Search a block ID and press Enter" style="flex: 1; border: 0; outline: 0; background: transparent; padding: 0.65rem 0;" />
+        </div>
+        <a class="ls-btn" href="analyze.html">+ Analyze a block</a>
+      </header>
+
+      <section class="ls-card" style="display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 0;">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: var(--danger-bg); display: grid; place-items: center; flex: none;">
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--danger-strong); box-shadow: 0 0 0 5px var(--danger-halo);"></div>
+        </div>
+        <div style="flex: 1; min-width: 240px;" id="banner-text">
+          <div class="ls-empty" style="padding: 0;">Loading…</div>
+        </div>
+        <div class="ls-row">
+          <a class="ls-btn ls-btn-ghost" href="priorities.html">Priority queue</a>
+          <button class="ls-btn ls-btn-danger" id="review-top-btn">Review block →</button>
+        </div>
+      </section>
+
+      <section id="stats-grid" class="ls-grid ls-grid-4">
+        <div class="ls-empty">Loading stats…</div>
+      </section>
+
+      <section class="ls-card" style="padding: 0; overflow: hidden;">
+        <div class="ls-row" style="padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--border-light); justify-content: space-between;">
+          <div>
+            <div class="ls-row" style="gap: 0.5rem;">
+              <span id="sim-dot" style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); flex: none;"></span>
+              <span style="font-weight: 600; font-size: 1rem;">Simulated data-center feed</span>
+            </div>
+            <p class="ls-muted" style="margin: 0.35rem 0 0; max-width: 60ch;">
+              Replays real historical log lines from the dataset, one block at a time, on a timer —
+              a demo of continuous monitoring, not new incoming data.
+            </p>
+          </div>
+          <div class="ls-row">
+            <label class="ls-muted" for="sim-interval">Every</label>
+            <input type="number" id="sim-interval" value="20" min="5" step="5" style="width: 4.5rem;" />
+            <span class="ls-muted">sec</span>
+            <button type="button" class="ls-toggle" id="sim-toggle" role="switch" aria-checked="false">
+              <span class="ls-toggle-track"><span class="ls-toggle-knob"></span></span>
+              <span class="ls-toggle-label" id="sim-toggle-label">Off</span>
+            </button>
+          </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap;">
+          <div class="ls-terminal" id="sim-terminal" style="flex: 1 1 420px; min-width: 0;">
+            <div class="ls-empty" style="color: var(--sidebar-text-muted); text-align: left; padding: 0;">Not running.</div>
+          </div>
+          <div style="flex: 1 1 220px; padding: 1rem 1.1rem; border-left: 1px solid var(--border-light); display: flex; flex-direction: column; gap: 1rem;">
+            <div class="ls-grid ls-grid-2" style="gap: 0.75rem;">
+              <div><div class="ls-muted" style="font-size: 0.75rem;">Cases processed</div><div style="font: 600 1.3rem 'IBM Plex Sans';" id="sim-processed">0</div></div>
+              <div><div class="ls-muted" style="font-size: 0.75rem;">Flagged live</div><div style="font: 600 1.3rem 'IBM Plex Sans'; color: var(--danger-text);" id="sim-flagged">0</div></div>
+            </div>
+            <p class="ls-muted" id="sim-status" style="margin: 0;">Not running.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="ls-section-title">How accurate is the AI?</div>
+        <div id="accuracy-box" class="ls-grid ls-grid-2"></div>
+      </section>
+
+      <section class="ls-grid" style="grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: start;">
+        <div class="ls-card" style="padding: 0; overflow: hidden;">
+          <div class="ls-row" style="justify-content: space-between; padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--border-light);">
+            <span style="font-weight: 600;">Recent analyses</span>
+          </div>
+          <div id="recent-analyses"></div>
+        </div>
+        <div class="ls-card" id="block-detail-panel">
+          <div class="ls-empty">Select a row to see details here.</div>
+        </div>
+      </section>
+      <footer class="ls-footer">LogSense · v1.0 · Clark University</footer>
+    </main>
+  </div>
+
+  <script src="js/api.js?v=1794419247"></script>
+  <script src="js/dashboard.js?v=1794419247"></script>
+</body>
+</html>

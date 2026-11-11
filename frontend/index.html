@@ -4,120 +4,191 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-  <title>LogSense — Dashboard</title>
+  <title>LogSense — Log anomaly detection with evidence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=1793639901" />
+  <link rel="stylesheet" href="css/styles.css?v=1794419247" />
 </head>
-<body>
-  <div class="ls-shell">
-    <aside class="ls-sidebar">
-      <div class="ls-brand">LogSense</div>
-      <p class="ls-muted" style="margin: -0.4rem 0.5rem 0.75rem; font-size: 0.78rem;">Find unusual log blocks and see why, backed by similar past incidents.</p>
-      <nav class="ls-nav">
-        <div class="ls-nav-header">Monitor</div>
-        <a href="index.html" class="active">Dashboard</a>
-        <a href="priorities.html">Priorities <span class="ls-badge" id="nav-priorities-badge" hidden></span></a>
-        <div class="ls-nav-header">Investigate</div>
-        <a href="analyze.html">Analyze</a>
-        <a href="history.html">History</a>
-        <a href="chat.html">Chat</a>
-        <div class="ls-nav-header">Model</div>
-        <a href="evaluate.html">Evaluation</a>
-        <a href="reports.html">Reports</a>
-        <div class="ls-nav-header">Info</div>
-        <a href="about.html">About</a>
+<body class="ls-home">
+  <header class="ls-home-header" id="top">
+    <div class="ls-home-header-inner">
+      <a href="index.html" class="ls-brand">LogSense</a>
+      <nav class="ls-home-header-nav">
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#results">Results</a>
       </nav>
-      <div class="ls-sidebar-info">
-        <strong>Dataset · HDFS</strong>
-        <div class="ls-mono">575,061 blocks indexed</div>
-        <div class="ls-dot-row"><span class="ls-dot"></span>Retriever online</div>
+      <a class="ls-btn" href="dashboard.html">Open dashboard</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="ls-home-hero">
+      <span class="ls-home-pill"><span class="ls-home-pill-dot"></span>Log anomaly detection with evidence</span>
+      <h1>Know which log failures matter, and why.</h1>
+      <p class="ls-home-hero-sub">LogSense scans system logs, flags the blocks that look wrong, and explains each one in plain language using similar past incidents as evidence.</p>
+      <div class="ls-row" style="justify-content: center;">
+        <a class="ls-btn" href="dashboard.html">Open dashboard →</a>
+        <a class="ls-btn ls-btn-ghost" href="#how-it-works">See how it works</a>
       </div>
-    </aside>
+    </section>
 
-    <main class="ls-main">
-      <header class="ls-row" style="justify-content: space-between;">
-        <div class="ls-row" style="flex: 1; min-width: 240px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 0.75rem;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-faint); flex: none;"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="topbar-search" placeholder="Search a block ID and press Enter" style="flex: 1; border: 0; outline: 0; background: transparent; padding: 0.65rem 0;" />
-        </div>
-        <a class="ls-btn" href="analyze.html">+ Analyze a block</a>
-      </header>
-
-      <section class="ls-card" style="display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 0;">
-        <div style="width: 44px; height: 44px; border-radius: 12px; background: var(--danger-bg); display: grid; place-items: center; flex: none;">
-          <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--danger-strong); box-shadow: 0 0 0 5px var(--danger-halo);"></div>
-        </div>
-        <div style="flex: 1; min-width: 240px;" id="banner-text">
-          <div class="ls-empty" style="padding: 0;">Loading…</div>
-        </div>
-        <div class="ls-row">
-          <a class="ls-btn ls-btn-ghost" href="priorities.html">Priority queue</a>
-          <button class="ls-btn ls-btn-danger" id="review-top-btn">Review block →</button>
-        </div>
-      </section>
-
-      <section id="stats-grid" class="ls-grid ls-grid-4">
-        <div class="ls-empty">Loading stats…</div>
-      </section>
-
-      <section class="ls-card" style="padding: 0; overflow: hidden;">
-        <div class="ls-row" style="padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--border-light); justify-content: space-between;">
-          <div>
-            <div class="ls-row" style="gap: 0.5rem;">
-              <span id="sim-dot" style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); flex: none;"></span>
-              <span style="font-weight: 600; font-size: 1rem;">Simulated data-center feed</span>
+    <section class="ls-home-preview">
+      <div class="ls-home-preview-frame">
+        <div class="ls-home-preview-inner">
+          <div class="ls-home-preview-banner">
+            <div class="ls-home-preview-dot"></div>
+            <div style="flex: 1;">
+              <div style="font-weight: 600; font-size: 0.92rem;">4 recent blocks need attention</div>
+              <div class="ls-muted" style="font-size: 0.8rem; margin-top: 0.15rem;">Ranked by confidence in the priority queue</div>
             </div>
-            <p class="ls-muted" style="margin: 0.35rem 0 0; max-width: 60ch;">
-              Replays real historical log lines from the dataset, one block at a time, on a timer —
-              a demo of continuous monitoring, not new incoming data.
-            </p>
+            <span class="ls-btn ls-btn-danger" style="font-size: 0.82rem; padding: 0.5rem 0.9rem; pointer-events: none;">Review block →</span>
           </div>
-          <div class="ls-row">
-            <label class="ls-muted" for="sim-interval">Every</label>
-            <input type="number" id="sim-interval" value="20" min="5" step="5" style="width: 4.5rem;" />
-            <span class="ls-muted">sec</span>
-            <button type="button" class="ls-toggle" id="sim-toggle" role="switch" aria-checked="false">
-              <span class="ls-toggle-track"><span class="ls-toggle-knob"></span></span>
-              <span class="ls-toggle-label" id="sim-toggle-label">Off</span>
-            </button>
+          <div class="ls-terminal ls-home-preview-terminal" style="height: 190px; border-radius: var(--radius-sm);">
+            <div class="ls-terminal-line ls-home-log-line"><span class="ls-t-time">12:23:30</span><span class="ls-mono">dn-02</span><span class="ls-mono">INFO</span><span>NameSystem.addStoredBlock: blockMap updated: 10.251.100.159:50010</span></div>
+            <div class="ls-terminal-line ls-home-log-line"><span class="ls-t-time">12:23:30</span><span class="ls-mono">dn-11</span><span class="ls-mono">INFO</span><span>NameSystem.addStoredBlock: blockMap updated: 10.251.80.144:50010</span></div>
+            <div class="ls-terminal-line ls-home-log-line"><span class="ls-t-time">12:23:31</span><span class="ls-mono">dn-11</span><span class="ls-mono">INFO</span><span>DataXceiver: Receiving block blk_-84742192130… src: /10.251.83.191</span></div>
+            <div class="ls-terminal-line ls-home-log-line"><span class="ls-t-time">12:23:31</span><span class="ls-mono">dn-09</span><span class="ls-mono">INFO</span><span>PacketResponder: Received block blk_-46026678774… of size 67108864</span></div>
+            <div class="ls-terminal-line ls-home-log-line"><span class="ls-t-time">12:23:32</span><span class="ls-mono">dn-04</span><span class="ls-mono">INFO</span><span>PacketResponder: Received block blk_-37057122680… of size 67108864</span></div>
+            <div class="ls-terminal-line ls-home-log-line"><span class="ls-t-time">12:23:32</span><span class="ls-mono">dn-10</span><span class="ls-mono">INFO</span><span>DataXceiver: Receiving block blk_-37385860069… src: /10.251.190.183</span></div>
+            <div class="ls-terminal-line ls-home-log-line"><span class="ls-t-time">12:23:33</span><span class="ls-mono">dn-10</span><span class="ls-mono">INFO</span><span>PacketResponder: Received block blk_67284282799… of size 67108864</span></div>
+            <div class="ls-terminal-line ls-home-log-line"><span class="ls-t-time">12:23:33</span><span class="ls-mono">dn-12</span><span class="ls-mono">INFO</span><span>NameSystem.allocateBlock: /user/root/rand/part-00033 blk_-14298547807…</span></div>
+            <div class="ls-terminal-line ls-home-log-line"><span class="ls-t-time">12:23:34</span><span class="ls-mono">dn-03</span><span class="ls-mono">INFO</span><span>NameSystem.allocateBlock: /user/root/rand/part-00097 blk_-32457497427…</span></div>
+            <div class="ls-terminal-line ls-home-log-line"><span class="ls-t-time">12:23:34</span><span class="ls-mono">dn-02</span><span class="ls-mono">INFO</span><span>NameSystem.addStoredBlock: blockMap updated: 10.251.170.41:50010</span></div>
+            <div class="ls-terminal-line ls-home-log-line"><span class="ls-t-time">12:23:34</span><span class="ls-mono">dn-05</span><span class="ls-mono">INFO</span><span>DataXceiver: Receiving block blk_-42800668820… src: /10.251.46.253</span></div>
           </div>
-        </div>
-        <div style="display: flex; flex-wrap: wrap;">
-          <div class="ls-terminal" id="sim-terminal" style="flex: 1 1 420px; min-width: 0;">
-            <div class="ls-empty" style="color: var(--sidebar-text-muted); text-align: left; padding: 0;">Not running.</div>
-          </div>
-          <div style="flex: 1 1 220px; padding: 1rem 1.1rem; border-left: 1px solid var(--border-light); display: flex; flex-direction: column; gap: 1rem;">
-            <div class="ls-grid ls-grid-2" style="gap: 0.75rem;">
-              <div><div class="ls-muted" style="font-size: 0.75rem;">Cases processed</div><div style="font: 600 1.3rem 'IBM Plex Sans';" id="sim-processed">0</div></div>
-              <div><div class="ls-muted" style="font-size: 0.75rem;">Flagged live</div><div style="font: 600 1.3rem 'IBM Plex Sans'; color: var(--danger-text);" id="sim-flagged">0</div></div>
+          <div class="ls-home-preview-explain">
+            <div class="ls-row" style="justify-content: space-between; margin-bottom: 0.65rem;">
+              <span class="ls-mono" style="font-weight: 600;">blk_7333006829265792396</span>
+              <span class="ls-badge ls-badge-anomaly">Anomaly · 100%</span>
             </div>
-            <p class="ls-muted" id="sim-status" style="margin: 0;">Not running.</p>
+            <div class="ls-home-preview-explain-label">What happened — grounded in 3 similar past incidents</div>
+            <p>The block was received, then repeatedly deleted and re-created after "block info was missing" errors. This matches two earlier confirmed anomalies.</p>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section>
-        <div class="ls-section-title">How accurate is the AI?</div>
-        <div id="accuracy-box" class="ls-grid ls-grid-2"></div>
-      </section>
+    <section class="ls-home-stats-outer" id="stats-strip">
+      <div class="ls-home-stats">
+        <div class="ls-home-stat"><div class="ls-home-stat-value" id="home-stat-blocks">…</div><div class="ls-home-stat-label">HDFS blocks indexed</div></div>
+        <div class="ls-home-stat"><div class="ls-home-stat-value" id="home-stat-anomalies">…</div><div class="ls-home-stat-label">Labeled anomalies to learn from</div></div>
+        <div class="ls-home-stat"><div class="ls-home-stat-value ls-metric-grounded" id="home-stat-accuracy">…</div><div class="ls-home-stat-label">Explanation accuracy with evidence</div></div>
+        <div class="ls-home-stat"><div class="ls-home-stat-value ls-metric-grounded" id="home-stat-delta">…</div><div class="ls-home-stat-label">Better than guessing without evidence</div></div>
+      </div>
+    </section>
 
-      <section class="ls-grid" style="grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: start;">
-        <div class="ls-card" style="padding: 0; overflow: hidden;">
-          <div class="ls-row" style="justify-content: space-between; padding: 0.9rem 1.1rem; border-bottom: 1px solid var(--border-light);">
-            <span style="font-weight: 600;">Recent analyses</span>
+    <section class="ls-home-section" id="how-it-works">
+      <div class="ls-home-section-head">
+        <div class="ls-home-eyebrow">How it works</div>
+        <h2>From raw log lines to an explained incident in four steps.</h2>
+      </div>
+      <div class="ls-home-how-grid">
+        <div class="ls-home-how-card">
+          <div class="ls-home-how-tag">01 · DETECT</div>
+          <h3>Score each block</h3>
+          <p>A classifier flags the block as Normal or Anomaly with a confidence score.</p>
+        </div>
+        <div class="ls-home-how-card">
+          <div class="ls-home-how-tag">02 · RETRIEVE</div>
+          <h3>Find similar past cases</h3>
+          <p>The closest labeled blocks are pulled from the index to serve as evidence.</p>
+        </div>
+        <div class="ls-home-how-card">
+          <div class="ls-home-how-tag">03 · EXPLAIN</div>
+          <h3>Write the explanation</h3>
+          <p>A language model explains the verdict using those cases as evidence.</p>
+        </div>
+        <div class="ls-home-how-card">
+          <div class="ls-home-how-tag">04 · DRAFT</div>
+          <h3>Draft the incident ticket</h3>
+          <p>For a likely anomaly, a ticket can be drafted on demand.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ls-home-section" id="features">
+      <div class="ls-home-section-head">
+        <div class="ls-home-eyebrow">Features</div>
+        <h2>Built for the on-call engineer and the manager reading the report.</h2>
+      </div>
+      <div class="ls-home-features-grid">
+        <div class="ls-home-feature-card">
+          <h3>Priority queue</h3>
+          <p>Every flagged block ranked by confidence, with review tracking so nothing is checked twice.</p>
+          <div class="ls-home-feature-preview">
+            <div class="ls-home-feature-row"><span class="ls-mono">blk_8895996987…</span><span class="ls-badge ls-badge-muted">Not yet</span></div>
+            <div class="ls-home-feature-row"><span class="ls-mono">blk_9160796703…</span><span class="ls-badge ls-badge-muted">Not yet</span></div>
+            <div class="ls-home-feature-row"><span class="ls-mono">blk_-2448583810…</span><span class="ls-badge ls-badge-muted">Not yet</span></div>
           </div>
-          <div id="recent-analyses"></div>
         </div>
-        <div class="ls-card" id="block-detail-panel">
-          <div class="ls-empty">Select a row to see details here.</div>
+        <div class="ls-home-feature-card">
+          <h3>Recommended next steps</h3>
+          <p>Numbered actions with the exact commands to run, plus an incident ticket ready to copy.</p>
+          <div class="ls-home-feature-preview">
+            <div class="ls-row" style="gap: 0.6rem; align-items: flex-start;">
+              <div class="ls-home-how-tag" style="width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--accent-strong); display: grid; place-items: center; flex: none; margin: 0;">1</div>
+              <div class="ls-home-feature-step">Check DataNode logs around the flagged timestamp.</div>
+            </div>
+            <div class="ls-home-feature-step ls-mono" style="background: var(--sidebar-bg); color: var(--sidebar-text); border-radius: var(--radius-sm); padding: 0.4rem 0.6rem;">grep PacketResponder *.log</div>
+          </div>
         </div>
-      </section>
-      <footer class="ls-footer">LogSense · v1.0 · Clark University</footer>
-    </main>
-  </div>
+        <div class="ls-home-feature-card">
+          <h3>Live simulation</h3>
+          <p>Replay stored cases through the full pipeline on a timer to watch detection happen in real time.</p>
+          <div class="ls-home-feature-preview">
+            <div class="ls-row" style="gap: 0.5rem;"><span class="ls-dot" style="width:7px;height:7px;border-radius:50%;background:var(--success-strong);"></span><span class="ls-muted" style="font-size: 0.82rem;">Next case in 20s…</span></div>
+          </div>
+        </div>
+        <div class="ls-home-feature-card">
+          <h3>Ask in plain language</h3>
+          <p>Chat with LogSense about any block, incident or trend without writing a query.</p>
+          <div class="ls-home-feature-preview">
+            <div class="ls-home-feature-chat ls-home-feature-chat-user">What should I review first today?</div>
+            <div class="ls-home-feature-chat ls-home-feature-chat-ai" id="home-chat-answer">Start with the top of the priority queue — … blocks are flagged and still unreviewed.</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <script src="js/api.js?v=1793639901"></script>
-  <script src="js/dashboard.js?v=1793639901"></script>
+    <section class="ls-home-section" id="results">
+      <div class="ls-card ls-home-results-card">
+        <div>
+          <div class="ls-home-eyebrow">Results</div>
+          <h2 style="text-align: left; margin: 0 0 0.75rem;">Evidence makes the explanations more accurate.</h2>
+          <p class="ls-about-card-intro" style="margin-bottom: 0;">Each evaluation compares explanations written with retrieved past incidents against explanations written without them, checked against ground-truth labels.</p>
+        </div>
+        <div>
+          <div class="ls-about-bars">
+            <div class="ls-about-bar-row">
+              <div class="ls-about-bar-head"><span>Using evidence</span><b style="color: var(--info-strong);">~85%</b></div>
+              <div class="ls-about-bar-track"><div class="ls-about-bar-fill" style="width: 85%; background: var(--info-strong);"></div></div>
+            </div>
+            <div class="ls-about-bar-row">
+              <div class="ls-about-bar-head"><span>Without evidence</span><b style="color: var(--warning-strong);">~31%</b></div>
+              <div class="ls-about-bar-track"><div class="ls-about-bar-fill" style="width: 31%; background: var(--warning-strong);"></div></div>
+            </div>
+          </div>
+          <p class="ls-about-note">Latest run · 200 cases · Oct 28, 2026. Scored by counting anomaly- vs. normal-leaning keywords, a simple, approximate method, so treat these as estimates.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ls-home-cta">
+      <h2>See what needs attention right now.</h2>
+      <p>Open the dashboard to review flagged blocks and run your own analysis.</p>
+      <a class="ls-btn" href="dashboard.html">Open dashboard →</a>
+    </section>
+  </main>
+
+  <footer class="ls-home-footer">
+    <div class="ls-home-footer-inner">
+      <div>LogSense · Capstone project, Clark University</div>
+      <div>Data: Loghub HDFS_v1</div>
+    </div>
+  </footer>
+
+  <script src="js/api.js?v=1794419247"></script>
+  <script src="js/home.js?v=1794419247"></script>
 </body>
 </html>
