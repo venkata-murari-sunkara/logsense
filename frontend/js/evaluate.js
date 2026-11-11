@@ -147,7 +147,7 @@ function renderRuns() {
   listEl.innerHTML = `
       <div class="ls-table-wrap">
         <table class="ls-table">
-          <thead><tr><th>#</th><th>Sample size</th><th>Status</th><th>Grounded</th><th>Ungrounded</th><th>Duration</th><th>When</th></tr></thead>
+          <thead><tr><th>#</th><th>Sample size</th><th>Status</th><th>Grounded</th><th>Ungrounded</th><th>Duration</th><th>When</th><th></th></tr></thead>
           <tbody>
             ${runs
               .map(
@@ -160,6 +160,11 @@ function renderRuns() {
                 <td>${r.ungrounded_accuracy !== null ? (r.ungrounded_accuracy * 100).toFixed(0) + "%" : "—"}</td>
                 <td class="ls-muted">${r.completed_at ? formatDuration(new Date(r.completed_at) - new Date(r.created_at)) : "—"}</td>
                 <td class="ls-muted">${formatDate(r.created_at)}</td>
+                <td>${
+                  r.status === "running"
+                    ? ""
+                    : `<button type="button" class="ls-btn ls-btn-ghost delete-run-btn" data-id="${r.id}" title="Delete this run">Delete</button>`
+                }</td>
               </tr>`
               )
               .join("")}
@@ -169,6 +174,27 @@ function renderRuns() {
     listEl.querySelectorAll("tbody tr").forEach((row) => {
       row.addEventListener("click", () => loadRunDetail(row.dataset.id));
     });
+    listEl.querySelectorAll(".delete-run-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteRun(btn.dataset.id);
+      });
+    });
+}
+
+async function deleteRun(id) {
+  if (!confirm(`Delete run #${id}? This can't be undone.`)) return;
+  try {
+    await api.deleteEvaluation(id);
+    lastRuns = lastRuns.filter((r) => String(r.id) !== String(id));
+    renderRuns();
+    if (currentDetailRunId === String(id)) {
+      currentDetailRunId = null;
+      document.getElementById("run-detail").innerHTML = "";
+    }
+  } catch (err) {
+    alert(`Couldn't delete run #${id}: ${err.message}`);
+  }
 }
 
 async function loadRuns() {

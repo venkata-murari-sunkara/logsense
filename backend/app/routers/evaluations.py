@@ -1,11 +1,11 @@
 import datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.database import get_db
-from app.models import EvaluationRun
+from app.models import EvaluationResult, EvaluationRun
 from app.schemas import EvaluationRunCreate, EvaluationRunDetail, EvaluationRunSummary
 from app.services.evaluation import request_stop, run_evaluation
 
@@ -65,3 +65,15 @@ def get_evaluation(run_id: int, db: Session = Depends(get_db)):
     if run is None:
         raise HTTPException(status_code=404, detail="Evaluation run not found")
     return run
+
+
+@router.delete("/{run_id}", status_code=204)
+def delete_evaluation(run_id: int, db: Session = Depends(get_db)):
+    run = db.get(EvaluationRun, run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="Evaluation run not found")
+    if run.status == "running":
+        raise HTTPException(status_code=400, detail="Stop this run before deleting it")
+    db.execute(delete(EvaluationResult).where(EvaluationResult.evaluation_run_id == run_id))
+    db.delete(run)
+    db.commit()

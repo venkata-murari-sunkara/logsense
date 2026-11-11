@@ -41,6 +41,7 @@ const api = {
   listEvaluations: (params = {}) => apiRequest(`/evaluations?${new URLSearchParams(params)}`),
   getEvaluation: (id) => apiRequest(`/evaluations/${id}`),
   stopEvaluation: (id) => apiRequest(`/evaluations/${id}/stop`, { method: "POST" }),
+  deleteEvaluation: (id) => apiRequest(`/evaluations/${id}`, { method: "DELETE" }),
   startSimulation: (intervalSeconds) =>
     apiRequest("/simulation/start", {
       method: "POST",
