@@ -2,14 +2,25 @@ const PAGE_SIZE = 25;
 let currentOffset = 0;
 
 async function loadSummary() {
-  const el = document.getElementById("summary-card");
+  const textEl = document.getElementById("summary-text");
+  const progressEl = document.getElementById("summary-progress");
   try {
     const stats = await api.stats();
-    el.innerHTML = `
-      <b>${stats.flagged_unreviewed.toLocaleString()}</b> flagged case(s) still need a look
-      <span class="ls-muted">(out of ${stats.flagged_by_model.toLocaleString()} the AI has ever flagged)</span>`;
+    const reviewed = stats.flagged_by_model - stats.flagged_unreviewed;
+    const pct = stats.flagged_by_model > 0 ? (reviewed / stats.flagged_by_model) * 100 : 0;
+    textEl.innerHTML = `
+      <div style="font-size: 1.3rem; font-weight: 600;">${stats.flagged_unreviewed.toLocaleString()} cases still need a look</div>
+      <div class="ls-muted" style="margin-top: 0.3rem;">Out of ${stats.flagged_by_model.toLocaleString()} the AI has ever flagged</div>`;
+    progressEl.innerHTML = `
+      <div class="ls-row" style="justify-content: space-between; font-size: 0.82rem;">
+        <span class="ls-muted">Reviewed</span>
+        <span class="ls-mono ls-muted">${reviewed.toLocaleString()} of ${stats.flagged_by_model.toLocaleString()}</span>
+      </div>
+      <div class="ls-progress-track" style="margin-top: 0.4rem;">
+        <div class="ls-progress-fill" style="width: ${pct}%;"></div>
+      </div>`;
   } catch (err) {
-    el.innerHTML = `<div class="ls-empty">Failed to load summary: ${escapeHtml(err.message)}</div>`;
+    textEl.innerHTML = `<div class="ls-empty" style="padding: 0;">Failed to load summary: ${escapeHtml(err.message)}</div>`;
   }
 }
 

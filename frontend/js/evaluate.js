@@ -127,15 +127,22 @@ function statusLabelHtml(status) {
   return escapeHtml(status);
 }
 
-async function loadRuns() {
+let lastRuns = [];
+
+function renderRuns() {
   const listEl = document.getElementById("run-list");
-  try {
-    const runs = await api.listEvaluations({ limit: 20 });
-    if (runs.length === 0) {
-      listEl.innerHTML = `<div class="ls-empty">No evaluation runs yet.</div>`;
-      return;
-    }
-    listEl.innerHTML = `
+  const hideFailed = document.getElementById("hide-failed-runs").checked;
+  const runs = hideFailed ? lastRuns.filter((r) => r.status !== "failed") : lastRuns;
+
+  if (lastRuns.length === 0) {
+    listEl.innerHTML = `<div class="ls-empty">No evaluation runs yet.</div>`;
+    return;
+  }
+  if (runs.length === 0) {
+    listEl.innerHTML = `<div class="ls-empty">No runs to show — every run so far has failed.</div>`;
+    return;
+  }
+  listEl.innerHTML = `
       <div class="ls-table-wrap">
         <table class="ls-table">
           <thead><tr><th>#</th><th>Sample size</th><th>Status</th><th>Grounded</th><th>Ungrounded</th><th>Duration</th><th>When</th></tr></thead>
@@ -160,6 +167,13 @@ async function loadRuns() {
     listEl.querySelectorAll("tbody tr").forEach((row) => {
       row.addEventListener("click", () => loadRunDetail(row.dataset.id));
     });
+}
+
+async function loadRuns() {
+  const listEl = document.getElementById("run-list");
+  try {
+    lastRuns = await api.listEvaluations({ limit: 20 });
+    renderRuns();
   } catch (err) {
     listEl.innerHTML = `<div class="ls-empty">Failed to load runs: ${escapeHtml(err.message)}</div>`;
   }
@@ -213,6 +227,7 @@ document.getElementById("stop-btn").onclick = () => {
 };
 document.getElementById("sample-size").addEventListener("input", updateSampleSizeWarning);
 updateSampleSizeWarning();
+document.getElementById("hide-failed-runs").addEventListener("change", renderRuns);
 
 // If a run is already in progress (e.g. the page was refreshed mid-run),
 // resume live tracking instead of just showing it in the static history

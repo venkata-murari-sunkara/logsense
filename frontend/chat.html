@@ -7,7 +7,7 @@
   <title>LogSense — Chat</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=1794419247" />
+  <link rel="stylesheet" href="css/styles.css?v=1794421188" />
 </head>
 <body>
   <div class="ls-shell">
@@ -33,26 +33,33 @@
     </aside>
 
     <main class="ls-main">
+      <header class="ls-row" style="justify-content: space-between;">
+        <div class="ls-row" style="flex: 1; min-width: 240px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 0.75rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-faint); flex: none;"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="topbar-search" placeholder="Search a block ID and press Enter" style="flex: 1; border: 0; outline: 0; background: transparent; padding: 0.65rem 0;" />
+        </div>
+        <a class="ls-btn" href="analyze.html">+ Analyze a block</a>
+      </header>
+
       <div class="ls-header">
         <h1>Ask LogSense</h1>
-        <p>Ask about current stats, recent activity, or a specific block — answers are grounded in the system's real, current data, not guesses.</p>
+        <p>Ask questions about blocks, incidents and trends in plain language.</p>
       </div>
 
       <div class="ls-card" style="padding: 0; overflow: hidden;">
         <div id="chat-messages" style="max-height: 55vh; overflow-y: auto; padding: 1.25rem;"></div>
+        <div id="chat-suggestions" style="padding: 0 1.25rem 1.1rem; display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
         <div style="border-top: 1px solid var(--border); padding: 0.9rem 1.25rem; display: flex; gap: 0.6rem;">
-          <input type="text" id="chat-input" placeholder="e.g. Which blocks look risky right now?" style="flex: 1;" />
+          <input type="text" id="chat-input" placeholder="Ask about a block, a DataNode, or today's incidents…" style="flex: 1;" />
           <button class="ls-btn" id="chat-send-btn">Send</button>
           <button class="ls-btn ls-btn-ghost" id="chat-clear-btn">Clear</button>
         </div>
       </div>
-
-      <p class="ls-muted" style="margin-top: 0.75rem;">Try: "How accurate is the AI?" · "What's the top priority case right now?" · "Tell me about block blk_-1234567890"</p>
       <footer class="ls-footer">LogSense · v1.0 · Clark University</footer>
     </main>
   </div>
 
-  <script src="js/api.js?v=1794419247"></script>
-  <script src="js/chat.js?v=1794419247"></script>
+  <script src="js/api.js?v=1794421188"></script>
+  <script src="js/chat.js?v=1794421188"></script>
 </body>
 </html>

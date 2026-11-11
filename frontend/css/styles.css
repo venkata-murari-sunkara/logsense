@@ -293,6 +293,17 @@ code { background: var(--bg); padding: 0.1rem 0.4rem; border-radius: 4px; font-s
 
 .ls-pagination { display: flex; gap: 0.5rem; align-items: center; margin-top: 1rem; }
 
+/* ---------- Progress bar (e.g. reviewed / total) ---------- */
+.ls-progress-track { height: 6px; border-radius: 999px; background: var(--border-light); overflow: hidden; }
+.ls-progress-fill { height: 100%; border-radius: 999px; background: var(--success-strong); }
+
+/* ---------- Chat suggestion chips ---------- */
+.ls-chat-suggestion {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+  padding: 0.5rem 0.95rem; font-size: 0.85rem; color: var(--text); cursor: pointer;
+}
+.ls-chat-suggestion:hover { background: var(--bg); border-color: var(--accent-strong); }
+
 /* ---------- Charts ---------- */
 .ls-chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.4rem 1rem; margin-bottom: 1rem; position: relative; }
 .ls-chart-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem; }
@@ -446,10 +457,13 @@ code { background: var(--bg); padding: 0.1rem 0.4rem; border-radius: 4px; font-s
   max-width: 1160px; margin: 0 auto; padding: 2rem 1.5rem;
   display: grid; grid-template-columns: repeat(4, 1fr);
 }
-.ls-home-stat { text-align: center; padding: 0 1rem; border-left: 1px solid var(--border-light); }
+.ls-home-stat { text-align: center; padding: 0.5rem 1rem; border-left: 1px solid var(--border-light); }
 .ls-home-stat:first-child { border-left: none; }
 .ls-home-stat-value { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.02em; }
 .ls-home-stat-label { color: var(--text-muted); font-size: 0.8rem; margin-top: 0.3rem; }
+.ls-home-stat-link { border-radius: var(--radius-sm); transition: background-color 0.15s ease; }
+.ls-home-stat-link:hover { background: var(--bg); text-decoration: none; }
+.ls-home-stat-link:hover .ls-home-stat-label { color: var(--accent-strong); }
 
 .ls-home-section { max-width: 1160px; margin: 0 auto; padding: 3.5rem 1.5rem; }
 .ls-home-section-head { max-width: 640px; margin: 0 0 2rem; }

@@ -7,7 +7,7 @@
   <title>LogSense — Priorities</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=1794419247" />
+  <link rel="stylesheet" href="css/styles.css?v=1794421188" />
 </head>
 <body>
   <div class="ls-shell">
@@ -34,16 +34,16 @@
 
     <main class="ls-main">
       <div class="ls-header">
-        <h1>Case priorities</h1>
-        <p>Flagged blocks worth looking at first, ranked by how confident the AI is that each one is a real problem</p>
+        <h1>Priority queue</h1>
+        <p>Flagged blocks ranked by how confident the AI is that each one is a real problem.</p>
       </div>
 
-      <div class="ls-card" id="summary-card">
-        <div class="ls-empty">Loading…</div>
-      </div>
-
-      <div class="ls-row" style="margin-bottom: 1rem;">
-        <label class="ls-muted"><input type="checkbox" id="unreviewed-only" checked /> Show only cases not yet reviewed</label>
+      <div class="ls-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div id="summary-text"><div class="ls-empty" style="padding: 0;">Loading…</div></div>
+        <div class="ls-row" style="gap: 1.5rem; align-items: center;">
+          <div id="summary-progress" style="min-width: 200px;"></div>
+          <label class="ls-muted" style="white-space: nowrap;"><input type="checkbox" id="unreviewed-only" checked /> Hide reviewed</label>
+        </div>
       </div>
 
       <p class="ls-muted" style="margin: 0 0 0.5rem;">Sorted by confidence, then error events, then event count.</p>
@@ -54,7 +54,7 @@
     </main>
   </div>
 
-  <script src="js/api.js?v=1794419247"></script>
-  <script src="js/priorities.js?v=1794419247"></script>
+  <script src="js/api.js?v=1794421188"></script>
+  <script src="js/priorities.js?v=1794421188"></script>
 </body>
 </html>

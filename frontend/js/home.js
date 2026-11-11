@@ -7,8 +7,8 @@ async function loadHomeStats() {
     const ev = stats.latest_evaluation;
     if (ev && ev.status === "completed") {
       document.getElementById("home-stat-accuracy").textContent = `${(ev.grounded_accuracy * 100).toFixed(0)}%`;
-      const deltaPts = Math.round((ev.grounded_accuracy - ev.ungrounded_accuracy) * 100);
-      document.getElementById("home-stat-delta").textContent = `+${deltaPts} pts`;
+      const multiplier = ev.grounded_accuracy / ev.ungrounded_accuracy;
+      document.getElementById("home-stat-delta").textContent = `${multiplier.toFixed(1)}×`;
     } else {
       document.getElementById("home-stat-accuracy").textContent = "—";
       document.getElementById("home-stat-delta").textContent = "—";
