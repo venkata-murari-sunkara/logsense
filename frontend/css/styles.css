@@ -112,6 +112,16 @@ code, .ls-mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
   font: 600 13px "IBM Plex Mono", monospace;
 }
 
+.ls-sidebar-home {
+  display: flex; align-items: center; gap: 0.6rem;
+  margin: 0 0.5rem; padding: 0.65rem 0.85rem;
+  border: 1px solid var(--sidebar-border); border-radius: var(--radius-sm);
+  color: var(--sidebar-text); font-size: 0.95rem; font-weight: 500;
+}
+.ls-sidebar-home:hover { background: var(--sidebar-hover); text-decoration: none; }
+.ls-sidebar-home svg { flex: none; }
+.ls-sidebar-home-arrow { margin-left: auto; color: var(--sidebar-text-muted); }
+
 .ls-nav { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.88rem; }
 .ls-nav-header { padding: 1rem 0.65rem 0.35rem; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: #77746d; }
 .ls-nav-header:first-child { padding-top: 0.2rem; }
